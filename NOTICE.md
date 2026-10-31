@@ -14,6 +14,13 @@ include the clips. Do not re-host them publicly without written permission from 
 The app is designed to fetch clips slowly from a configurable source (`public/content-source.json`) and cache them
 on the learner's own device.
 
+## Hand-shape and location drawings
+
+The hand-shape (手形) and location (位置) drawings shown under each clip are the dictionary's, from the same source and
+with the same unstated reuse terms. Unlike the clips, **they are included in this repository and in the published
+site** (`public/pictures/`, 1.7 MB, shrunk copies). Before publishing, either get written permission or replace them
+with your own drawings: see [docs/PICTURES.md](docs/PICTURES.md). Files in `public/pictures/custom/` take precedence.
+
 ## Software
 
 Preact (MIT), Vite (MIT). Full list in `package.json`.

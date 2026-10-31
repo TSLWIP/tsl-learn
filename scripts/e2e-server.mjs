@@ -58,6 +58,24 @@ const manifest = {
   clips: Object.entries(FIXTURE_CLIPS).map(([video, b]) => ({ video, size: b.length })),
 };
 
+// Drawings for a few fixture signs; the image files themselves are the real ones in dist/pictures.
+const pictures = {
+  schemaVersion: 1,
+  hands: {
+    209: { label: '雞', file: 'pictures/hand/209.jpg' },
+    101: { label: '一', file: 'pictures/hand/101.jpg' },
+    314: { label: '矮' },
+    105: { label: '兄', file: 'pictures/custom/hand/105.png', custom: true }, // file does not exist: must fall back to an empty tile
+  },
+  places: { 602: { label: 'palm', file: 'pictures/place/602.jpg' }, 401: { label: 'in front of body', file: 'pictures/place/401.jpg' } },
+  signs: {
+    thank_n: { h: [['209', 1, 1]], p: ['602'] },
+    thank_s: { h: [['101', 1, 1], ['209', 2, 1]], p: ['602'] },
+    welcome_b: { h: [['314', 1, 1]], p: ['401'] },
+    thank_b: { h: [['105', 1, 1]] },
+  },
+};
+
 const state = { notFound: new Set(), swSuffix: '', inflight: 0, peak: 0, clipHits: {}, delayMs: 40 };
 const reset = () => {
   state.notFound.clear();
@@ -68,7 +86,7 @@ const reset = () => {
   state.delayMs = 40;
 };
 
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml' };
 
 createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
@@ -97,6 +115,7 @@ createServer(async (req, res) => {
   if (path === '/__stats') return send(200, JSON.stringify({ peak: state.peak, clipHits: state.clipHits }), 'application/json');
 
   if (!REAL && path === '/data/lexicon.json') return send(200, JSON.stringify(lexicon), 'application/json');
+  if (!REAL && path === '/data/pictures.json') return send(200, JSON.stringify(pictures), 'application/json');
   if (!REAL && path === '/data/manifest.json') return send(200, JSON.stringify(manifest), 'application/json');
 
   if (path.startsWith('/clips/')) {

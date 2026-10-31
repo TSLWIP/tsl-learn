@@ -3,6 +3,7 @@ import { checkClips, downloadClips, type Manifest, type PackCheck } from '../cli
 import { loadContentSource, type ContentSource } from '../config.ts';
 import type { Lexicon } from '../lexicon/types.ts';
 import { buildIndex, type MatchIndex } from '../match/index.ts';
+import { isPictures, type Pictures } from '../pictures/types.ts';
 import { DEFAULT_PREFS, loadFlags, loadPrefs, type MissingFlag, type Prefs } from '../state/prefs.ts';
 import { NewerSchemaError, openDatabase } from '../storage/db.ts';
 import { Repo } from '../storage/repo.ts';
@@ -12,6 +13,8 @@ export interface AppContext {
   repo: Repo | null;
   lexicon: Lexicon;
   manifest: Manifest;
+  /** hand-shape and location drawings; null when the file is missing (the signs still work without them) */
+  pictures: Pictures | null;
   index: MatchIndex;
   initialPrefs: Prefs;
   initialFlags: MissingFlag[];
@@ -73,6 +76,16 @@ async function loadData(repo: Repo | null, notes: string[]): Promise<{ lexicon: 
   }
 }
 
+/** The drawings are an extra: any failure here leaves them out instead of stopping the app. */
+async function loadPictures(): Promise<Pictures | null> {
+  try {
+    const p = await fetchJson('data/pictures.json');
+    return isPictures(p) ? p : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function boot(onState: (s: BootState) => void): Promise<AppContext> {
   const notes: string[] = [];
   onState({ phase: 'starting', detail: 'Opening your saved data' });
@@ -96,6 +109,7 @@ export async function boot(onState: (s: BootState) => void): Promise<AppContext>
 
   onState({ phase: 'starting', detail: 'Loading the sign list' });
   const { lexicon, manifest } = await loadData(repo, notes);
+  const pictures = await loadPictures();
   const source = await loadContentSource();
   const fetcher = new PoliteFetcher({ maxConcurrent: source.maxConcurrent, minGapMs: source.minGapMs });
 
@@ -123,7 +137,7 @@ export async function boot(onState: (s: BootState) => void): Promise<AppContext>
 
   const initialPrefs = repo ? await loadPrefs(repo).catch(() => DEFAULT_PREFS) : DEFAULT_PREFS;
   const initialFlags = repo ? await loadFlags(repo).catch(() => []) : [];
-  const ctx: AppContext = { repo, lexicon, manifest, index: buildIndex(lexicon), initialPrefs, initialFlags, source, fetcher, persisted, notes };
+  const ctx: AppContext = { repo, lexicon, manifest, pictures, index: buildIndex(lexicon), initialPrefs, initialFlags, source, fetcher, persisted, notes };
   onState({ phase: 'ready', ctx });
   return ctx;
 }

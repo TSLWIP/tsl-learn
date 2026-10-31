@@ -82,6 +82,30 @@ describe.skipIf(!have && !required)('built copy (dist/)', () => {
     expect(man.clips.every((c: { size: number }) => c.size > 0)).toBe(true);
   });
 
+  it('has a drawing file for every drawing the pictures list points to, and only real signs', () => {
+    const pics = JSON.parse(readFileSync(join(dist, 'data/pictures.json'), 'utf8'));
+    const lex = JSON.parse(readFileSync(join(dist, 'data/lexicon.json'), 'utf8'));
+    const ids = new Set<string>(lex.entries.map((e: { id: string }) => e.id));
+    expect(pics.schemaVersion).toBe(1);
+    for (const table of [pics.hands, pics.places] as Record<string, { file?: string }>[]) {
+      for (const [n, info] of Object.entries(table)) {
+        if (info.file) {
+          expect(files, `drawing ${n}: ${info.file}`).toContain(info.file);
+          expect(info.file, 'relative path').not.toMatch(/^(\/|https?:)/);
+        }
+      }
+    }
+    for (const [id, s] of Object.entries(pics.signs) as [string, { h?: [string, number, number][]; p?: string[] }][]) {
+      expect(ids.has(id), `pictures for unknown sign ${id}`).toBe(true);
+      for (const [n] of s.h ?? []) expect(pics.hands[n], `hand ${n} of ${id}`).toBeTruthy();
+      for (const n of s.p ?? []) expect(pics.places[n], `place ${n} of ${id}`).toBeTruthy();
+    }
+    // the drawings are part of the offline shell, so they work without a connection after the first visit
+    const sw = readFileSync(join(dist, 'sw.js'), 'utf8');
+    const list: string[] = JSON.parse(sw.match(/const PRECACHE = (\[.*?\]);/)![1]);
+    expect(list.filter((f) => f.startsWith('pictures/')).length).toBeGreaterThan(50);
+  });
+
   it('keeps the app shell small', () => {
     const shell = files.filter((f) => f.startsWith('assets/')).reduce((a, f) => a + statSync(join(dist, f)).size, 0);
     expect(shell, `JS+CSS is ${(shell / 1024).toFixed(0)} KB`).toBeLessThan(400 * 1024);

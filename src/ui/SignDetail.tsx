@@ -5,6 +5,7 @@ import { siblings } from '../match/index.ts';
 import { normalizeText } from '../match/normalize.ts';
 import type { Prefs, Speed } from '../state/prefs.ts';
 import { AddToDeck } from './AddToDeck.tsx';
+import { SignPictures } from './SignPictures.tsx';
 import { SignPlayer } from './SignPlayer.tsx';
 
 export const DIALECT_LABEL = {
@@ -56,6 +57,7 @@ export function SignDetail({ ctx, entry, prefs, onPrefs, loop = true, onEnded, p
         loop={loop}
         onEnded={onEnded}
       />
+      <SignPictures ctx={ctx} entryId={current.id} />
       <header>
         <p class="zh" lang="zh-Hant" data-testid="detail-zh">
           {current.chinese ?? '—'}

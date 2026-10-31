@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lexicon": "node scripts/build-lexicon.ts",
+    "pictures": "node scripts/build-pictures.ts",
     "typecheck": "tsc",
     "test": "vitest run",
     "e2e": "playwright test",

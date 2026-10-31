@@ -64,6 +64,22 @@ test.describe('real dictionary', () => {
     await page.screenshot({ path: '.scratch/real-library.png' });
   });
 
+  test('real signs show their hand-shape and location drawings under the clip', async ({ page }) => {
+    await page.goto('/');
+    await ready(page);
+    await page.getByTestId('tab-lookup').click();
+    for (const word of ['abacus', 'thank', 'water']) {
+      await go(page, word);
+      const pics = page.getByTestId('pictures');
+      await expect(pics, word).toBeVisible();
+      await expect
+        .poll(() => pics.locator('img').evaluateAll((imgs) => imgs.length > 0 && imgs.every((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0)), { message: word })
+        .toBe(true);
+      await pics.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: `.scratch/real-pictures-${word}.png` });
+    }
+  });
+
   test('a real Learn new session on the starter topics: quiz options look sensible and clips play', async ({ page }) => {
     await page.goto('/');
     await ready(page);

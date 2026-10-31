@@ -76,3 +76,12 @@
 - **Decision (user): the user pushes to GitHub themselves.** Nothing is published from this machine; `docs/PUBLISHING.md` has the exact steps.
 - **"Test the clip source" in Settings** downloads one clip and names the likely cause of a failure. A browser reports a missing CORS header, a dead host and a wrong address all as the same network error, so the message lists each one to check.
 - **Cross-origin hosting is covered by tests:** a second and third test host (with and without CORS) check that clips play and download from another origin, that a host without CORS gives a useful message instead of "you are offline", and that a wrong folder layout is reported as missing files.
+
+## Hand-shape and location drawings
+
+- **Source: the old project's local copy, no scraping.** `E:TSL` already held 62 hand-shape and 30 location drawings and, per sign, which codes it uses (5,316 signs have hand shapes, 5,317 have locations). Nothing was requested from twtsl.ccu.edu.tw.
+- **Drawings are identified by the number in their code** (`209_雞` -> 209): plain ASCII file names (Chinese names are not safe on every shell or static host) and `101_一` / `101_一b` collapse into one drawing, as the old mapping did.
+- **Shared, not per sign.** A drawing belongs to a hand shape or a location, so one replacement file (`public/pictures/custom/hand/209.png`) updates every sign that uses it. `npm run pictures` prefers a custom file and never overwrites it.
+- **They ship in the app repository** (1.7 MB, precached so they work offline), unlike the clips. This is in NOTICE.md and PUBLISHING.md: the drawings carry the same unstated reuse terms, so they should be swapped for own drawings or cleared with CCU before a public release.
+- **A missing or broken drawing keeps an empty labelled tile** so the layout never moves and a replacement can be added later. The pictures file is optional: if it fails to load the app runs without drawings.
+- Shown under the clip in Lookup and Library (the shared sign page). Not yet shown on Learn intro cards or in quizzes.

@@ -36,6 +36,7 @@ npm run dev        # http://localhost:5173 (needs data and clips, see below)
 | --- | --- |
 | `npm test` | Unit tests: matching, scheduler, quiz logic, storage migrations, fetcher, contrast, stats |
 | `npm run build` | Typecheck and production build into `dist/` |
+| `npm run pictures` | Rebuild the hand-shape and location drawings and `pictures.json` (see [docs/PICTURES.md](docs/PICTURES.md)) |
 | `npm run check-dist` | Release guards on `dist/`: relative URLs only, no CDN, stamped service worker, no clips |
 | `npm run e2e` | Browser tests: storage chaos, lookup, learning, onboarding/progress/backup, accessibility (axe) |
 | `npm run soak` | Weeks of simulated use on the built copy, served under a subpath like GitHub Pages |

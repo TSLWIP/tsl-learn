@@ -214,3 +214,74 @@ test('phone layout: no sideways scroll and touch targets of at least 44px', asyn
   expect(small).toEqual([]);
   await page.screenshot({ path: '.scratch/phone-lookup.png', fullPage: true });
 });
+
+test.describe('hand-shape and location drawings', () => {
+  const loaded = (p: Page, testid: string) =>
+    p.getByTestId(testid).first().locator('img').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0);
+
+  test('shown under the clip with captions, in Lookup and in the Library', async ({ page }) => {
+    await start(page);
+    await lookup(page, 'thank');
+    await page.getByTestId('variant-thank_n').click();
+    const pics = page.getByTestId('pictures');
+    await expect(pics).toBeVisible();
+    await expect(pics.getByTestId('pic-hand')).toHaveCount(1);
+    await expect(pics.getByTestId('pic-place')).toHaveCount(1);
+    await expect(pics).toContainText('Hand shape 手形');
+    await expect(pics).toContainText('雞');
+    await expect(pics).toContainText('palm');
+    await expect.poll(() => loaded(page, 'pic-hand')).toBe(true);
+    await expect.poll(() => loaded(page, 'pic-place')).toBe(true);
+    // directly under the video, above the word
+    const [video, pictures, word] = await Promise.all(
+      ['player-video', 'pictures', 'detail-en'].map((id) => page.getByTestId(id).evaluate((el) => el.getBoundingClientRect().top)),
+    );
+    expect(video).toBeLessThan(pictures);
+    expect(pictures).toBeLessThan(word);
+
+    await page.getByTestId('tab-library').click();
+    await page.getByTestId('library-search').fill('welcome');
+    await page.getByTestId('library-row').first().click();
+    await expect(page.getByTestId('pictures')).toBeVisible();
+  });
+
+  test('two different hand shapes are labelled hand 1 and hand 2', async ({ page }) => {
+    await start(page);
+    await lookup(page, 'thank');
+    await page.getByTestId('variant-thank_s').click();
+    await expect(page.getByTestId('pic-hand')).toHaveCount(2);
+    await expect(page.getByTestId('pictures')).toContainText('hand 1');
+    await expect(page.getByTestId('pictures')).toContainText('hand 2');
+  });
+
+  test('a sign with no drawing yet, or a drawing that fails to load, keeps an empty labelled tile', async ({ page }) => {
+    await start(page);
+    await page.getByTestId('tab-library').click();
+    await page.getByTestId('library-search').fill('welcome');
+    await page.getByTestId('library-row').first().click();
+    await expect(page.getByTestId('pic-hand').getByTestId('pic-empty')).toBeVisible();
+    await expect(page.getByTestId('pic-hand')).toContainText('矮');
+    await page.getByTestId('back').click();
+    // thank_b: its (replacement) file does not exist on the server
+    await page.getByTestId('library-search').fill('thank');
+    await page.getByTestId('library-row').filter({ hasText: 'Variant B' }).click();
+    await expect(page.getByTestId('pic-hand').getByTestId('pic-empty')).toBeVisible();
+  });
+
+  test('signs without drawings show no empty section', async ({ page }) => {
+    await start(page);
+    await lookup(page, 'one');
+    await expect(page.getByTestId('sign-detail')).toBeVisible();
+    await expect(page.getByTestId('pictures')).toHaveCount(0);
+  });
+
+  test('phone layout: tiles fit the screen and the page does not scroll sideways', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await start(page);
+    await lookup(page, 'thank');
+    await page.getByTestId('variant-thank_s').click();
+    await expect(page.getByTestId('pictures')).toBeVisible();
+    const w = await page.evaluate(() => ({ doc: document.documentElement.scrollWidth, win: innerWidth }));
+    expect(w.doc).toBeLessThanOrEqual(w.win);
+  });
+});

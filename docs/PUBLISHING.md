@@ -9,7 +9,8 @@ Replace `YOU` with your GitHub user name. Do the clips first, so the app has som
 
 > **Before you push anything.** The clips come from the Taiwan Sign Language Online Dictionary, which states no reuse
 > terms. Publish them only if you have permission from National Chung Cheng University. The app repository contains
-> no clips, but it does contain the dictionary's glosses and sign descriptions as text (`public/data/lexicon.json`).
+> no clips, but it does contain the dictionary's glosses and sign descriptions as text (`public/data/lexicon.json`) and
+> its hand-shape and location drawings (`public/pictures/`, 1.7 MB). See [PICTURES.md](PICTURES.md) to swap in your own.
 
 ## 0. Check what will be public
 

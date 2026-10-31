@@ -310,3 +310,12 @@ label.check { display: flex; align-items: center; gap: 12px; min-height: 44px; c
 label.check input { width: 24px; height: 24px; accent-color: var(--accent); }
 
 .btn[aria-pressed='true'] .note, .btn[aria-checked='true'] .note { color: inherit; }
+
+/* --- hand-shape and location drawings under the clip --- */
+.pics { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 150px)); justify-content: center; gap: 10px; margin: 12px 0; }
+.pic { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.pic-frame { aspect-ratio: 1 / 1; display: grid; place-items: center; overflow: hidden; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+.pic-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pic-empty { padding: 8px; text-align: center; font-size: .85rem; color: #555; }
+.pic figcaption { display: flex; flex-direction: column; font-size: .85rem; line-height: 1.3; }
+.pic figcaption strong { font-size: .75rem; color: var(--muted); font-weight: 600; }
