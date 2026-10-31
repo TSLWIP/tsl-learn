@@ -91,7 +91,9 @@ export function Lookup({ ctx, prefs, onPrefs, flags, onFlag }: Props) {
       return;
     }
     setFocused(false);
-    run(text);
+    // Read the field itself: a fast typist's last keystrokes may not have been rendered into `text` yet.
+    const field = (e.currentTarget as HTMLFormElement | null)?.querySelector('input');
+    run(field ? field.value : text);
   };
 
   const accept = (label: string) => {

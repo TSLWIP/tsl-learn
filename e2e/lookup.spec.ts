@@ -55,6 +55,23 @@ test('all variants are listed and labelled; a pinned sign survives a reload', as
   await expect(page.getByTestId('detail-dialect')).toContainText('Both');
   await page.getByTestId('pin').click();
   await expect(page.getByTestId('pin')).toContainText('Preferred sign');
+  // the preference is written to IndexedDB in the background: wait until it has landed before reloading
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise<boolean>((resolve) => {
+            const r = indexedDB.open('tsl-learn');
+            r.onsuccess = () => {
+              const g = r.result.transaction('meta').objectStore('meta').get('prefs');
+              g.onsuccess = () => (r.result.close(), resolve(JSON.stringify(g.result ?? null).includes('thank_b')));
+              g.onerror = () => (r.result.close(), resolve(false));
+            };
+            r.onerror = () => resolve(false);
+          }),
+      ),
+    )
+    .toBe(true);
   await page.reload();
   await ready(page);
   await page.getByTestId('tab-lookup').click();
