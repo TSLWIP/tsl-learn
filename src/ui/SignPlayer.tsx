@@ -24,7 +24,7 @@ interface Props {
 type Status = 'loading' | 'ready' | 'error';
 
 const REASONS: Record<string, string> = {
-  network: 'You seem to be offline, and this clip is not saved on this device yet.',
+  network: 'This clip is not saved on this device yet, and it could not be downloaded. Check your connection, or Settings → Offline packs → Test the clip source.',
   'not-found': 'The clip file was not found on the server.',
   tripped: 'The server is not answering right now. Try again in a minute.',
   http: 'The server returned an error.',

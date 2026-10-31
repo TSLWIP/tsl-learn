@@ -75,6 +75,8 @@ backoff on 429/5xx (honouring `Retry-After`), no retry on 404, and it stops afte
 
 ## Deploying to GitHub Pages
 
+Full walk-through: [docs/PUBLISHING.md](docs/PUBLISHING.md). Clip hosting: [docs/HOSTING-CLIPS.md](docs/HOSTING-CLIPS.md). Phone checklist: [docs/DEVICE-CHECK.md](docs/DEVICE-CHECK.md). In short:
+
 1. Put the project in a GitHub repository whose default branch is `main`, and in **Settings → Pages** choose
    **Source: GitHub Actions**.
 2. Push. [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the typecheck, unit tests, build, release

@@ -128,3 +128,25 @@ createServer(async (req, res) => {
     send(404, 'not found');
   }
 }).listen(PORT, () => console.log(`e2e server on ${PORT}`));
+
+// Clip hosts on other origins, to test a separately hosted clip site:
+//   CLIPS_PORT        sends Access-Control-Allow-Origin: * (like GitHub Pages)
+//   CLIPS_NOCORS_PORT does not (a host that would block the app)
+for (const [envName, cors] of [['CLIPS_PORT', true], ['CLIPS_NOCORS_PORT', false]]) {
+  const port = Number(process.env[envName] ?? 0);
+  if (!port) continue;
+  createServer(async (req, res) => {
+    const video = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/+/, '');
+    state.clipHits[video] = (state.clipHits[video] ?? 0) + 1;
+    state.peak = Math.max(state.peak, ++state.inflight);
+    await new Promise((r) => setTimeout(r, state.delayMs));
+    state.inflight--;
+    const headers = { 'content-type': 'video/mp4', 'cache-control': 'no-store', ...(cors ? { 'access-control-allow-origin': '*' } : {}) };
+    if (state.notFound.has(video) || !FIXTURE_CLIPS[video]) {
+      res.writeHead(404, headers);
+      return res.end('nope');
+    }
+    res.writeHead(200, headers);
+    res.end(FIXTURE_CLIPS[video]);
+  }).listen(port, () => console.log(`clip host (${cors ? 'CORS' : 'no CORS'}) on ${port}`));
+}

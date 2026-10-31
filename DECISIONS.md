@@ -12,7 +12,7 @@
 - **Topical categories come from the old project's 13 hand-curated lists** (about 180 signs); everything else is "More signs" until a better categorisation exists. The old part-of-speech `category` is dropped.
 - **Free variants and same-gloss signs get a `senseLabel`** (variant letter, else the first words of the description) so the validator can require every duplicate English word to be distinguishable.
 - **`sourceUrl` is the dictionary home page** because the source data has no per-sign URL.
-- **Streaming from CCU is not wired up yet**: the clip URL scheme on twtsl.ccu.edu.tw is not known. `public/content-source.json` points at local `clips/` for now.
+- **Streaming straight from CCU is not possible for offline use**: when this was decided the clip URL scheme was unknown; it has since been found (`/video/m/ma.mp4`) but the files carry no CORS headers (see Milestone 6). `public/content-source.json` points at local `clips/` by default and the deploy can override it.
 
 ## Milestone 3 (lookup, library, player)
 
@@ -69,3 +69,10 @@
 - **Version 1.0.0**; deploy is CI-gated: typecheck, unit tests, build, release guards, browser tests and the soak test must pass before Pages is updated.
 - **The soak test runs on the built copy under `/tsl-learn/`** with a day-by-day clock offset (stored in localStorage so reloads keep it), a learner who makes mistakes (15%), and faults on fixed days: Cache API wipe, a clip returning 404, an offline day, a service-worker update, and backup, wipe and restore. After each day it checks stored schedules, the error log, object-URL leaks and heap growth.
 - **`npm run check-dist` is a small Node launcher** rather than `VAR=1 cmd`, which does not work in Windows' default shell.
+
+## After release prep
+
+- **Decision (user): clips on the user's own host, separate from the app.** A second GitHub Pages repo (`tsl-clips`) serves the clips; the app repo's `CLIP_BASE_URL` variable points at it. `scripts/prepare-clips-site.mjs` builds the upload folder and refuses to write unless every clip matches the manifest in size and exact letter case.
+- **Decision (user): the user pushes to GitHub themselves.** Nothing is published from this machine; `docs/PUBLISHING.md` has the exact steps.
+- **"Test the clip source" in Settings** downloads one clip and names the likely cause of a failure. A browser reports a missing CORS header, a dead host and a wrong address all as the same network error, so the message lists each one to check.
+- **Cross-origin hosting is covered by tests:** a second and third test host (with and without CORS) check that clips play and download from another origin, that a host without CORS gives a useful message instead of "you are offline", and that a wrong folder layout is reported as missing files.

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { WANTED_KEY, type AppContext } from '../boot/boot.ts';
+import { testClipSource } from '../clips/diagnose.ts';
 import { checkClips, downloadClips } from '../clips/pack.ts';
 import type { MissingFlag, Prefs } from '../state/prefs.ts';
 import { BackupError, importBackup } from '../storage/backup.ts';
@@ -96,6 +97,12 @@ export function Settings({ ctx, prefs, onPrefs, flags, onClearFlags }: Props) {
     await repo.setMeta(WANTED_KEY, [...wanted]);
     setMsg('Removed that pack from this device. It will download again when you need it.');
     void refresh();
+  };
+
+  const testSource = async () => {
+    setMsg('Testing the clip source…');
+    const r = await testClipSource(ctx.source, manifest);
+    setMsg(r.message);
   };
 
   const repair = async () => {
@@ -292,6 +299,9 @@ export function Settings({ ctx, prefs, onPrefs, flags, onClearFlags }: Props) {
         </ul>
         <button class="btn" data-testid="repair" disabled={!!active} onClick={repair}>
           Check and repair offline clips
+        </button>
+        <button class="btn" data-testid="test-source" onClick={testSource}>
+          Test the clip source
         </button>
       </div>
 
