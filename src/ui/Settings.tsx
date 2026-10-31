@@ -5,6 +5,7 @@ import type { MissingFlag, Prefs } from '../state/prefs.ts';
 import { BackupError, importBackup } from '../storage/backup.ts';
 import { downloadBackup } from '../storage/download.ts';
 import type { ErrorRecord } from '../storage/types.ts';
+import { About } from './About.tsx';
 
 const mb = (n: number): string => `${(n / 1e6).toFixed(n < 1e7 ? 1 : 0)} MB`;
 const CONFIRM_OVER = 50e6;
@@ -46,6 +47,7 @@ export function Settings({ ctx, prefs, onPrefs, flags, onClearFlags }: Props) {
   const [lastExport, setLastExport] = useState<number | undefined>();
   const [msg, setMsg] = useState('');
   const [active, setActive] = useState<Active | null>(null);
+  const [about, setAbout] = useState(false);
 
   const refresh = async () => {
     if (repo) {
@@ -138,6 +140,8 @@ export function Settings({ ctx, prefs, onPrefs, flags, onClearFlags }: Props) {
       setMsg('Copy is not available here; select the text below instead.');
     }
   };
+
+  if (about) return <About ctx={ctx} onBack={() => setAbout(false)} />;
 
   return (
     <section aria-labelledby="settings-h">
@@ -350,15 +354,11 @@ export function Settings({ ctx, prefs, onPrefs, flags, onClearFlags }: Props) {
       <div class="card" data-testid="about">
         <h2>About and credits</h2>
         <p>
-          Sign clips and Chinese and English glosses come from the{' '}
-          <a href="https://twtsl.ccu.edu.tw/" target="_blank" rel="noreferrer">
-            Taiwan Sign Language Online Dictionary 台灣手語線上辭典
-          </a>
-          , National Chung Cheng University. This app is an unofficial study tool and is not affiliated with the university.
+          Signs and glosses come from the Taiwan Sign Language Online Dictionary, National Chung Cheng University. This is an unofficial study tool.
         </p>
-        <p class="note">
-          The dictionary does not state reuse terms, so this app does not include the clips: it fetches them from a configurable source, slowly, and saves them on your device. See NOTICE.md in the project.
-        </p>
+        <button class="btn" data-testid="open-about" onClick={() => setAbout(true)}>
+          Credits, sources and licensing
+        </button>
         <p class="note">On an iPhone: tap Share, then “Add to Home Screen”, to use this like an app.</p>
       </div>
     </section>

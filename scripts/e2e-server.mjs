@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(fileURLToPath(import.meta.url), '../../dist');
 const PORT = Number(process.env.PORT ?? 4173);
+// BASE_PATH=/tsl-learn serves the app under a subpath, the way a GitHub Pages project site is served.
+const BASE_PATH = (process.env.BASE_PATH ?? '').replace(/\/$/, '');
 
 import { existsSync, readFileSync } from 'node:fs';
 
@@ -69,11 +71,19 @@ const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 
 createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
-  const path = decodeURIComponent(url.pathname);
+  let path = decodeURIComponent(url.pathname);
   const send = (code, body, type = 'text/plain') => {
     res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store' });
     res.end(body);
   };
+  if (BASE_PATH) {
+    if (path === BASE_PATH) {
+      res.writeHead(301, { location: `${BASE_PATH}/` });
+      return res.end();
+    }
+    if (path.startsWith(`${BASE_PATH}/`)) path = path.slice(BASE_PATH.length);
+    else if (!path.startsWith('/__')) return send(404, 'outside the base path');
+  }
 
   if (path === '/__reset') return reset(), send(200, 'ok');
   if (path === '/__ctl') {
@@ -95,6 +105,7 @@ createServer(async (req, res) => {
     await new Promise((r) => setTimeout(r, state.delayMs));
     state.inflight--;
     if (REAL) {
+      if (state.notFound.has(video)) return send(404, 'nope');
       try {
         return send(200, await readFile(join(realDir, video)), 'video/mp4');
       } catch {

@@ -3,6 +3,5 @@ dist
 .scratch
 test-results
 playwright-report
-public/data
 public/clips
 clips-360

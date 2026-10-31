@@ -1,15 +1,17 @@
 {
   "name": "tsl-learn",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "",
   "scripts": {
     "dev": "vite",
-    "build": "npm run lexicon && tsc && vite build",
+    "build": "tsc && vite build",
     "lexicon": "node scripts/build-lexicon.ts",
     "typecheck": "tsc",
     "test": "vitest run",
     "e2e": "playwright test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "soak": "playwright test -c playwright.soak.config.ts",
+    "check-dist": "node scripts/check-dist.mjs"
   },
   "keywords": [],
   "author": "",

@@ -15,12 +15,16 @@ export function isDue(p: SignProgress, now: number): boolean {
 
 /**
  * SM-2 with four grades. Deterministic: the same progress, grade and clock always give the same result.
+ * Early practice (not yet due) only ever lowers the schedule: a miss resets it, a success leaves it alone.
  *  again: back to the start, due again in 10 minutes, ease drops
  *  hard:  interval grows slowly, ease drops a little
  *  good:  1 day, then 6 days, then interval x ease
  *  easy:  a longer first steps, interval x ease x 1.3, ease rises
  */
 export function schedule(prev: SignProgress | undefined, id: string, grade: Grade, now: number): SignProgress {
+  // Extra practice before a sign is due must not push it further out: otherwise answering the same card three
+  // times in one afternoon would multiply its interval three times. A miss still counts, a success changes nothing.
+  if (prev && prev.dueAt > now && grade !== 'again') return prev;
   const p = prev ?? newProgress(id, now);
   const next: SignProgress = { ...p, schemaVersion: 2 };
   switch (grade) {

@@ -54,7 +54,31 @@ describe('SM-2 scheduler', () => {
   it('intervals always move forward by at least a day for successful reviews', () => {
     let p = run(['good', 'good'])[1];
     p = { ...p, ease: MIN_EASE, intervalDays: 1 };
-    for (const g of ['hard', 'good'] as const) expect(schedule(p, 'x', g, T0).intervalDays).toBeGreaterThanOrEqual(2);
+    for (const g of ['hard', 'good'] as const) expect(schedule(p, 'x', g, p.dueAt).intervalDays).toBeGreaterThanOrEqual(2);
+  });
+
+  it('extra practice before a sign is due does not grow its interval', () => {
+    const learned = schedule(undefined, 'x', 'good', T0); // due in 1 day
+    for (const g of ['good', 'easy', 'hard'] as const) {
+      expect(schedule(learned, 'x', g, T0 + 3_600_000), `early ${g}`).toEqual(learned);
+    }
+    // ten quick rounds in one afternoon change nothing
+    let p = learned;
+    for (let i = 0; i < 10; i++) p = schedule(p, 'x', 'good', T0 + i * 60_000);
+    expect(p).toEqual(learned);
+  });
+
+  it('a miss during early practice still resets the sign', () => {
+    const known = run(['good', 'good'])[1]; // interval 6 days
+    const miss = schedule(known, 'x', 'again', known.dueAt - 2 * DAY);
+    expect(miss).toMatchObject({ reps: 0, intervalDays: 0, lapses: 1 });
+    expect(miss.dueAt).toBe(known.dueAt - 2 * DAY + AGAIN_DELAY);
+  });
+
+  it('once it is due, a good answer advances it as usual', () => {
+    const learned = schedule(undefined, 'x', 'good', T0);
+    expect(schedule(learned, 'x', 'good', learned.dueAt).intervalDays).toBe(6);
+    expect(schedule(learned, 'x', 'good', learned.dueAt + 3 * DAY).intervalDays).toBe(6); // overdue is fine
   });
 
   it('is deterministic and does not mutate its input', () => {

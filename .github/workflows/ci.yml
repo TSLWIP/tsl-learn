@@ -1,9 +1,13 @@
-name: CI
+name: CI and deploy
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -17,9 +21,44 @@ jobs:
       - run: npm ci
       - run: npx tsc
       - run: npm test
-      # The e2e fixture server replaces the sign list and clips, so CI does not need the (non-public) clip library.
-      - run: npx vite build
+      # The site is built once and every later check runs against that exact build.
+      - run: npm run build
+      - run: npm run check-dist
       - run: npx playwright install --with-deps chromium chrome
+      # The e2e fixture server replaces the sign list and clips, so CI does not need the clip library.
       - run: npx playwright test
+      # Weeks of simulated use on the built copy, served under a subpath like GitHub Pages.
+      - run: npm run soak
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+      # Optional: set the repository variable CLIP_BASE_URL (https, ending in /) to serve clips from your own host.
+      - name: Point the site at the clip host
+        if: vars.CLIP_BASE_URL != ''
+        run: node scripts/set-content-source.mjs
+        env:
+          CLIP_BASE_URL: ${{ vars.CLIP_BASE_URL }}
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: dist
 
-  # Deploy is wired up in Milestone 6 (needs the content-source decision and permission to host clips).
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

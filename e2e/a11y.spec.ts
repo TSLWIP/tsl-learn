@@ -102,6 +102,9 @@ for (const scheme of ['light', 'dark'] as const) {
     await tab('settings');
     await expect(page.getByTestId('storage-status')).toBeVisible();
     await audit(page, 'settings', found);
+    await page.getByTestId('open-about').click();
+    await expect(page.getByTestId('about-screen')).toBeVisible();
+    await audit(page, 'about and credits', found);
 
     expect(found, found.join('\n')).toEqual([]);
   });

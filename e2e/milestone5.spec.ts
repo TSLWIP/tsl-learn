@@ -223,18 +223,18 @@ test.describe('appearance', () => {
   test('auto follows the device; light and dark override it', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await start(page);
-    expect(await bg(page)).toBe(DARK);
+    await expect.poll(() => bg(page)).toBe(DARK);
     await tab(page, 'settings');
     await page.getByTestId('theme-light').click();
-    expect(await bg(page)).toBe(LIGHT);
+    await expect.poll(() => bg(page)).toBe(LIGHT);
     await page.emulateMedia({ colorScheme: 'light' });
     await page.getByTestId('theme-dark').click();
-    expect(await bg(page)).toBe(DARK);
+    await expect.poll(() => bg(page)).toBe(DARK);
     await page.getByTestId('theme-auto').click();
-    expect(await bg(page)).toBe(LIGHT);
+    await expect.poll(() => bg(page)).toBe(LIGHT);
     await page.reload();
     await ready(page);
-    expect(await bg(page)).toBe(LIGHT);
+    await expect.poll(() => bg(page)).toBe(LIGHT);
   });
 
   test('reduced motion: clips start paused with a play button, and still play on request', async ({ page }) => {
@@ -322,3 +322,24 @@ test.describe('phone layout of the new screens', () => {
     expect(await check()).toEqual({ overflow: 0, small: [] });
   });
 });
+
+test.describe('about and credits', () => {
+  test('credits the dictionary, is honest about permission, and shows the version', async ({ page }) => {
+    await start(page);
+    await tab(page, 'settings');
+    await page.getByTestId('open-about').click();
+    const about = page.getByTestId('about-screen');
+    await expect(about.getByRole('heading', { level: 1 })).toHaveText('About and credits');
+    await expect(about.getByRole('link', { name: /Taiwan Sign Language Online Dictionary/ })).toHaveAttribute('href', 'https://twtsl.ccu.edu.tw/');
+    await expect(about).toContainText('National Chung Cheng University');
+    await expect(page.getByTestId('about-licence')).toContainText('does not publish terms of use');
+    await expect(page.getByTestId('about-licence')).toContainText('does not include the clips');
+    await expect(about).toContainText('not a translation');
+    await expect(about).toContainText('No accounts, no analytics');
+    await expect(page.getByTestId('about-version')).toHaveText('1.0.0');
+    await expect(page.getByTestId('about-source')).toHaveText('clips/');
+    await page.getByTestId('about-back').click();
+    await expect(page.getByTestId('storage-status')).toBeVisible();
+  });
+});
+
