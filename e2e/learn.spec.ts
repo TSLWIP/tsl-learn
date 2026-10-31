@@ -280,7 +280,7 @@ test('keyboard: number keys pick an answer', async ({ page }) => {
   await page.evaluate(() => {
     const w = window as unknown as { __keys: string[] };
     w.__keys = [];
-    addEventListener('keydown', (e) => w.__keys.push(`${e.key} on ${(e.target as HTMLElement).tagName}`), true);
+    addEventListener('keydown', (e: KeyboardEvent) => w.__keys.push(`${e.key} on ${(e.target as HTMLElement).tagName}`), true);
   });
   await page.getByTestId('mode-sign-to-meaning').click();
   await page.getByTestId('start-quick').click();
