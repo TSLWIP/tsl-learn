@@ -7,15 +7,19 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(fileURLToPath(import.meta.url), '../../dist');
 const PORT = Number(process.env.PORT ?? 4173);
+// REAL=1: serve the real sign list (dist/data) and the encoded clips instead of the fixtures.
+const REAL = process.env.REAL === '1';
 // BASE_PATH=/tsl-learn serves the app under a subpath, the way a GitHub Pages project site is served.
 const BASE_PATH = (process.env.BASE_PATH ?? '').replace(/\/$/, '');
 
 import { existsSync, readFileSync } from 'node:fs';
 
-// Real encoded clips are used when they exist locally (so playback can be tested); otherwise synthetic bytes.
+// Fixture mode uses small synthetic videos generated for the tests (e2e/fixtures/clips), so playback tests are
+// real and run anywhere with no dictionary content. REAL=1 serves the real encoded clips instead.
 const realDir = join(root, '../clips-360');
+const fixtureDir = join(root, '../e2e/fixtures/clips');
 const clipBytes = (video, n, seed) => {
-  const p = join(realDir, video);
+  const p = join(REAL ? realDir : fixtureDir, video);
   return existsSync(p) ? readFileSync(p) : Buffer.alloc(n, seed);
 };
 const FIXTURE_CLIPS = {
@@ -53,9 +57,6 @@ const manifest = {
   buildId: 'e2e-1',
   clips: Object.entries(FIXTURE_CLIPS).map(([video, b]) => ({ video, size: b.length })),
 };
-
-// REAL=1: serve the real sign list (dist/data) and the encoded clips instead of the fixtures.
-const REAL = process.env.REAL === '1';
 
 const state = { notFound: new Set(), swSuffix: '', inflight: 0, peak: 0, clipHits: {}, delayMs: 40 };
 const reset = () => {

@@ -85,6 +85,14 @@ test(`soak: ${DAYS} days of study on the built copy under /tsl-learn/`, async ({
     URL.revokeObjectURL = (u: string) => (made.r++, revoke(u));
   });
 
+  // Anchor the simulated clock to 10:00 on the first day, so a run can never straddle a real midnight (which would
+  // merge two simulated days). Later days are whole days later; real time keeps flowing within each day, so
+  // anything due "tomorrow" is always due when the next day starts.
+  const tenToday = new Date();
+  tenToday.setHours(10, 0, 0, 0);
+  const shift = tenToday.getTime() - Date.now();
+  const offsetFor = (day: number) => day * DAY + shift;
+
   const rand = mulberry32(2026);
   await request.get('/__reset');
   await page.goto('/tsl-learn/');
@@ -105,7 +113,7 @@ test(`soak: ${DAYS} days of study on the built copy under /tsl-learn/`, async ({
   for (let day = 0; day < DAYS; day++) {
     if (day === SKIP_DAY) continue; // nothing at all happens on a day off
 
-    await page.evaluate((o) => localStorage.setItem('__soakOffset', String(o)), day * DAY);
+    await page.evaluate((o) => localStorage.setItem('__soakOffset', String(o)), offsetFor(day));
     await page.reload();
     await ready(page);
     const heapStart: number = await page.evaluate(() => (performance as any).memory?.usedJSHeapSize ?? 0);
@@ -199,7 +207,7 @@ test(`soak: ${DAYS} days of study on the built copy under /tsl-learn/`, async ({
   }
 
   // ---- after the whole run ------------------------------------------------------------------------------------
-  await page.evaluate((o) => localStorage.setItem('__soakOffset', String(o)), (DAYS - 1) * DAY);
+  await page.evaluate((o) => localStorage.setItem('__soakOffset', String(o)), offsetFor(DAYS - 1));
   await page.reload();
   await ready(page);
   await page.getByTestId('tab-progress').click();
