@@ -44,6 +44,17 @@ test.describe('real dictionary', () => {
     await ready(page);
     await page.getByTestId('tab-library').click();
     await expect(page.getByTestId('library-count')).toHaveText('5,390 signs');
+    // every category bubble is wide enough for its own text, on a desktop and on a phone (they once squashed to 44px)
+    for (const width of [1280, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      const cramped = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('[aria-label="Categories"] button')]
+          .filter((b) => b.scrollWidth > b.clientWidth + 1)
+          .map((b) => b.textContent),
+      );
+      expect(cramped, `category bubbles whose text spills out at ${width}px`).toEqual([]);
+    }
+    await page.setViewportSize({ width: 1280, height: 720 });
     const t0 = Date.now();
     await page.getByTestId('library-search').fill('water');
     await expect(page.getByTestId('library-list').locator('li').first()).toContainText('water');

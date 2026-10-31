@@ -76,8 +76,9 @@ export function Lookup({ ctx, prefs, onPrefs, flags, onFlag }: Props) {
     const result = lookup(ctx.index, t);
     setItems(result);
     setPeek(null);
-    setSeq(false);
     const first = result.findIndex((i) => i.kind === 'sign');
+    // A phrase of two or more signs plays through by itself, in typed order; a single sign just loops.
+    setSeq(result.filter((i) => i.kind === 'sign').length > 1);
     setSel(first >= 0 ? first : 0);
     setHi(-1);
     const videos = result.flatMap((i) => (i.kind === 'sign' ? [chooseEntry(i.entries, i.key, prefs).video] : []));

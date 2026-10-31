@@ -205,8 +205,8 @@ pre {
 .badge { display: inline-block; padding: 2px 10px; margin: 0 6px 6px 0; border-radius: 999px; border: 1px solid var(--line); font-size: .8rem; color: var(--muted); }
 .variants { display: flex; flex-wrap: wrap; gap: 4px; }
 .credit { font-size: .8rem; }
-.cats { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0; }
-.cats .btn { white-space: nowrap; margin: 0; }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0; }
+.cats .btn { flex: none; margin: 0; }
 .list { border-top: 1px solid var(--line); }
 .row { width: 100%; display: flex; align-items: baseline; gap: 12px; min-height: 52px; padding: 8px 4px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
 .row .zh { font-size: 1.2rem; min-width: 4.5em; }

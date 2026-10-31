@@ -103,13 +103,25 @@ test('words with no sign or no separate sign are shown in typed order', async ({
   await expect(page.getByTestId('skipped-panel')).toContainText('no separate sign');
 });
 
-test('play in order advances from sign to sign by itself', async ({ page }) => {
+test('a phrase plays through in typed order by itself, and can be replayed', async ({ page }) => {
   await start(page);
   await lookup(page, 'thank good bye');
-  await page.getByTestId('play-all').click();
   const chips = page.getByTestId('chip-sign');
+  await expect(page.getByTestId('play-all')).toContainText('Playing in order');
   await expect(chips.nth(0)).toHaveClass(/sel/);
   await expect(chips.nth(1)).toHaveClass(/sel/, { timeout: 25_000 });
+  // after the last sign it stops, and the button plays the whole phrase again
+  await expect(page.getByTestId('play-all')).toContainText('Play in order', { timeout: 25_000 });
+  await page.getByTestId('play-all').click();
+  await expect(chips.nth(0)).toHaveClass(/sel/);
+  await expect(page.getByTestId('play-all')).toContainText('Playing in order');
+});
+
+test('a single word does not start a sequence', async ({ page }) => {
+  await start(page);
+  await lookup(page, 'thank');
+  await expect(page.getByTestId('play-all')).toHaveCount(0);
+  await expectPlaying(page);
 });
 
 test('Chinese input works', async ({ page }) => {
