@@ -13,12 +13,12 @@ Replace `YOU` with your GitHub user name. Do the clips first, so the app has som
 
 ## 0. Check what will be public
 
-- **Your git identity** is in every commit. See it with:
+- **Your git identity** is in every commit. This repository's commits are authored as `TSLWIP <learningtsl1@gmail.com>`
+  (set for this repository only; your global git settings were not touched). Check with:
   ```powershell
   git -C E:\TSL-Learn log --format="%an <%ae>" | Sort-Object -Unique
   ```
-  To use a different name or email for future commits, run `git config user.name "..."` and `git config user.email "..."`
-  inside the repository. To change the existing commits, ask me and I will rewrite them before the first push.
+  Use the same identity in the clips folder before your first commit there (step 1).
 - Nothing in the repository contains passwords, tokens or personal paths beyond default build-script paths such as
   `E:/TSL/...`.
 
@@ -29,6 +29,8 @@ Replace `YOU` with your GitHub user name. Do the clips first, so the app has som
    ```powershell
    cd E:\TSL-Learn-clips
    git init -b main
+   git config user.name "TSLWIP"
+   git config user.email "learningtsl1@gmail.com"
    git add -A
    git commit -m "Sign clips"
    git remote add origin https://github.com/YOU/tsl-clips.git
