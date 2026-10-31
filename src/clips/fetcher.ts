@@ -43,8 +43,11 @@ export class PoliteFetcher {
     this.failuresInARow = 0;
   }
 
-  private async acquire(): Promise<void> {
-    while (this.active >= this.o.maxConcurrent) await new Promise<void>((r) => this.waiters.push(r));
+  private async acquire(high: boolean): Promise<void> {
+    // A clip the learner just tapped jumps ahead of a bulk pack download.
+    while (this.active >= this.o.maxConcurrent) {
+      await new Promise<void>((r) => (high ? this.waiters.unshift(r) : this.waiters.push(r)));
+    }
     this.active++;
     const start = Math.max(this.o.now(), this.nextStart);
     this.nextStart = start + this.o.minGapMs;
@@ -56,9 +59,9 @@ export class PoliteFetcher {
     this.waiters.shift()?.();
   }
 
-  async fetchBlob(url: string, expectedSize?: number): Promise<FetchOutcome> {
+  async fetchBlob(url: string, expectedSize?: number, priority: 'high' | 'low' = 'low'): Promise<FetchOutcome> {
     if (this.tripped) return { ok: false, reason: 'tripped' };
-    await this.acquire();
+    await this.acquire(priority === 'high');
     try {
       let last: FetchOutcome = { ok: false, reason: 'network' };
       for (let attempt = 0; attempt <= this.o.maxRetries; attempt++) {

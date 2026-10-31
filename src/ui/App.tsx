@@ -2,31 +2,19 @@ import { useEffect, useState } from 'preact/hooks';
 import { boot, BootError, type AppContext, type BootState } from '../boot/boot.ts';
 import { registerServiceWorker } from '../sw-register.ts';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
+import { savePrefs, saveFlags, type MissingFlag, type Prefs } from '../state/prefs.ts';
+import { Library } from './Library.tsx';
+import { Lookup } from './Lookup.tsx';
 import { Settings } from './Settings.tsx';
 
 const sw = registerServiceWorker();
 
-function Home({ ctx }: { ctx: AppContext }) {
-  return (
-    <section>
-      <h1>TSL Learn</h1>
-      <p data-testid="home-count">{ctx.lexicon.entries.length.toLocaleString()} signs ready.</p>
-      <p class="note">
-        Taiwan Sign Language has its own grammar and word order. Looking signs up word by word is a study aid, not a translation.
-      </p>
-      {ctx.notes.map((n) => (
-        <p class="note" key={n} data-testid="boot-note">
-          {n}
-        </p>
-      ))}
-    </section>
-  );
-}
-
 export function App() {
   const [state, setState] = useState<BootState>({ phase: 'starting', detail: 'Starting' });
   const [ctx, setCtx] = useState<AppContext | null>(null);
-  const [tab, setTab] = useState<'home' | 'settings'>('home');
+  const [tab, setTab] = useState<'lookup' | 'library' | 'settings'>('lookup');
+  const [prefs, setPrefsState] = useState<Prefs | null>(null);
+  const [flags, setFlags] = useState<MissingFlag[]>([]);
   const [update, setUpdate] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
@@ -37,7 +25,12 @@ export function App() {
   useEffect(() => {
     let alive = true;
     boot((s) => alive && setState(s))
-      .then((c) => alive && setCtx(c))
+      .then((c) => {
+        if (!alive) return;
+        setPrefsState(c.initialPrefs);
+        setFlags(c.initialFlags);
+        setCtx(c);
+      })
       .catch((err) => {
         if (!alive) return;
         if (err instanceof BootError) setState({ phase: 'fatal', kind: err.kind, message: err.message });
@@ -90,6 +83,21 @@ export function App() {
     );
   }
 
+  const p = prefs ?? ctx.initialPrefs;
+  const setPrefs = (next: Prefs) => {
+    setPrefsState(next);
+    void (ctx.repo && savePrefs(ctx.repo, next).catch((e) => ctx.repo?.logError('prefs', e)));
+  };
+  const addFlag = (word: string) => {
+    const next = [...flags.filter((f) => f.word !== word), { word, at: Date.now() }];
+    setFlags(next);
+    void (ctx.repo && saveFlags(ctx.repo, next).catch((e) => ctx.repo?.logError('flags', e)));
+  };
+  const clearFlags = () => {
+    setFlags([]);
+    void (ctx.repo && saveFlags(ctx.repo, []).catch((e) => ctx.repo?.logError('flags', e)));
+  };
+
   return (
     <>
       {update && (
@@ -102,12 +110,17 @@ export function App() {
       )}
       <main>
         <ErrorBoundary where={tab} repo={ctx.repo} key={tab}>
-          {tab === 'home' ? <Home ctx={ctx} /> : <Settings ctx={ctx} />}
+          {tab === 'lookup' && <Lookup ctx={ctx} prefs={p} onPrefs={setPrefs} flags={flags} onFlag={addFlag} />}
+          {tab === 'library' && <Library ctx={ctx} prefs={p} onPrefs={setPrefs} />}
+          {tab === 'settings' && <Settings ctx={ctx} prefs={p} onPrefs={setPrefs} flags={flags} onClearFlags={clearFlags} />}
         </ErrorBoundary>
       </main>
       <nav class="tabs" aria-label="Main">
-        <button aria-current={tab === 'home' ? 'page' : undefined} onClick={() => setTab('home')} data-testid="tab-home">
-          Home
+        <button aria-current={tab === 'lookup' ? 'page' : undefined} onClick={() => setTab('lookup')} data-testid="tab-lookup">
+          Lookup
+        </button>
+        <button aria-current={tab === 'library' ? 'page' : undefined} onClick={() => setTab('library')} data-testid="tab-library">
+          Library
         </button>
         <button aria-current={tab === 'settings' ? 'page' : undefined} onClick={() => setTab('settings')} data-testid="tab-settings">
           Settings

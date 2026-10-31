@@ -2,13 +2,22 @@ import { useEffect, useState } from 'preact/hooks';
 import { WANTED_KEY, type AppContext } from '../boot/boot.ts';
 import { checkClips, downloadClips } from '../clips/pack.ts';
 import { BackupError, exportBackup, importBackup } from '../storage/backup.ts';
+import type { MissingFlag, Prefs } from '../state/prefs.ts';
 import type { ErrorRecord } from '../storage/types.ts';
 
 function mb(n: number): string {
   return `${(n / 1e6).toFixed(1)} MB`;
 }
 
-export function Settings({ ctx }: { ctx: AppContext }) {
+interface Props {
+  ctx: AppContext;
+  prefs: Prefs;
+  onPrefs: (p: Prefs) => void;
+  flags: MissingFlag[];
+  onClearFlags: () => void;
+}
+
+export function Settings({ ctx, prefs, onPrefs, flags, onClearFlags }: Props) {
   const { repo, lexicon, manifest } = ctx;
   const [errors, setErrors] = useState<ErrorRecord[]>([]);
   const [usage, setUsage] = useState<{ used: number; quota: number } | null>(null);
@@ -94,6 +103,37 @@ export function Settings({ ctx }: { ctx: AppContext }) {
         <p class="note" role="status" data-testid="settings-msg">
           {msg}
         </p>
+      )}
+
+      <div class="card">
+        <h2>Dialect 手語方言</h2>
+        <p class="note">When a word has a northern and a southern sign, this one is shown first. You can always open the other.</p>
+        <div role="radiogroup" aria-label="Preferred dialect">
+          <button class="btn" role="radio" aria-checked={prefs.dialect === 'north'} data-testid="dialect-north" onClick={() => onPrefs({ ...prefs, dialect: 'north' })}>
+            Northern (Taipei) 北部
+          </button>
+          <button class="btn" role="radio" aria-checked={prefs.dialect === 'south'} data-testid="dialect-south" onClick={() => onPrefs({ ...prefs, dialect: 'south' })}>
+            Southern (Tainan) 南部
+          </button>
+        </div>
+        {Object.keys(prefs.pins).length > 0 && (
+          <p class="note" data-testid="pin-count">
+            {Object.keys(prefs.pins).length} preferred sign(s) pinned.{' '}
+            <button class="link" onClick={() => onPrefs({ ...prefs, pins: {} })}>
+              Clear
+            </button>
+          </p>
+        )}
+      </div>
+
+      {flags.length > 0 && (
+        <div class="card" data-testid="flag-list">
+          <h2>Words you flagged as missing</h2>
+          <p>{flags.map((f) => f.word).join(', ')}</p>
+          <button class="btn" onClick={onClearFlags}>
+            Clear list
+          </button>
+        </div>
       )}
 
       <div class="card" data-testid="storage-status">

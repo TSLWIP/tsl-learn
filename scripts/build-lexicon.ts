@@ -45,12 +45,14 @@ export function convert(
       if (g && !english.some((x) => normalizeGloss(x) === normalizeGloss(g))) english.push(g.trim());
     }
     const dialect: Dialect = h.dialect === 'N' ? 'north' : h.dialect === 'S' ? 'south' : 'both';
+    const description = (h.description ?? '').trim();
     return {
       id: h.key,
       chinese: h.chinese ? h.chinese.replace(/_[NSAB]$/i, '') : null,
       english,
       category: catOf.get(h.key) ?? MORE.id,
       dialect,
+      ...(description ? { description: description.slice(0, 240) } : {}),
       video: h.videoPath.split(String.fromCharCode(92)).join('/'),
       sourceUrl: SOURCE_URL,
       licenseNote: LICENSE_NOTE,

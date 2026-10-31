@@ -28,8 +28,8 @@ const cachedCount = (page: Page) => page.getByTestId('cached-count');
 
 test('fresh start shows the sign list, never a blank page', async ({ page }) => {
   await firstLoad(page);
-  await expect(home(page)).toContainText('4 signs ready');
-  await expect(page.getByText('has its own grammar and word order')).toBeVisible();
+  await expect(home(page)).toContainText('7 signs ready');
+  await expect(page.getByTestId('grammar-note')).toContainText('word order differ');
 });
 
 test('downloads a category politely (never more than 2 at once) and shows storage status', async ({ page, request }) => {

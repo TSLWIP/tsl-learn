@@ -8,16 +8,26 @@ import { fileURLToPath } from 'node:url';
 const root = join(fileURLToPath(import.meta.url), '../../dist');
 const PORT = Number(process.env.PORT ?? 4173);
 
-const clipBytes = (n, seed) => Buffer.alloc(n, seed);
-const FIXTURE_CLIPS = {
-  'T/thank_a.mp4': clipBytes(1200, 1),
-  'T/thank_b.mp4': clipBytes(900, 2),
-  'G/good_bye.mp4': clipBytes(1500, 3),
-  'O/one.mp4': clipBytes(700, 4),
+import { existsSync, readFileSync } from 'node:fs';
+
+// Real encoded clips are used when they exist locally (so playback can be tested); otherwise synthetic bytes.
+const realDir = join(root, '../clips-360');
+const clipBytes = (video, n, seed) => {
+  const p = join(realDir, video);
+  return existsSync(p) ? readFileSync(p) : Buffer.alloc(n, seed);
 };
-const entry = (id, en, zh, category, video) => ({
+const FIXTURE_CLIPS = {
+  'T/thank_a.mp4': clipBytes('T/thank_a.mp4', 1200, 1),
+  'T/thank_b.mp4': clipBytes('T/thank_b.mp4', 900, 2),
+  'G/good_bye.mp4': clipBytes('G/good_bye.mp4', 1500, 3),
+  'O/one.mp4': clipBytes('O/one.mp4', 700, 4),
+  'T/thank_n.mp4': clipBytes('T/thank_n.mp4', 800, 5),
+  'T/thank_s.mp4': clipBytes('T/thank_s.mp4', 850, 6),
+  'W/welcome_b.mp4': clipBytes('W/welcome_b.mp4', 600, 7),
+};
+const entry = (id, en, zh, category, video, extra = {}) => ({
   id, chinese: zh, english: en, category, dialect: 'both', video,
-  sourceUrl: 'https://twtsl.ccu.edu.tw/', licenseNote: 'fixture',
+  sourceUrl: 'https://twtsl.ccu.edu.tw/', licenseNote: 'fixture', ...extra,
 });
 const lexicon = {
   schemaVersion: 1,
@@ -25,18 +35,25 @@ const lexicon = {
   categories: [
     { id: 'etiquette', en: 'Etiquette', zh: '禮貌' },
     { id: 'numbers', en: 'Numbers', zh: '數字' },
+    { id: 'more', en: 'More signs', zh: '其他手語' },
   ],
   entries: [
-    { ...entry('thank_a', ['thank'], '感謝', 'etiquette', 'T/thank_a.mp4'), senseLabel: 'Variant A' },
-    { ...entry('thank_b', ['thank'], '感謝', 'etiquette', 'T/thank_b.mp4'), senseLabel: 'Variant B' },
-    entry('good_bye', ['goodbye'], '再見', 'etiquette', 'G/good_bye.mp4'),
+    entry('thank_a', ['thank'], '感謝', 'etiquette', 'T/thank_a.mp4', { senseLabel: 'Variant A' }),
+    entry('thank_b', ['thank'], '感謝', 'etiquette', 'T/thank_b.mp4', { senseLabel: 'Variant B' }),
+    entry('good_bye', ['good bye', 'farewell'], '再見', 'etiquette', 'G/good_bye.mp4'),
     entry('one', ['one'], '一', 'numbers', 'O/one.mp4'),
+    entry('thank_n', ['thank'], '感謝', 'more', 'T/thank_n.mp4', { dialect: 'north', description: 'Fixture description of how it is made.' }),
+    entry('thank_s', ['thank'], '感謝', 'more', 'T/thank_s.mp4', { dialect: 'south' }),
+    entry('welcome_b', ['welcome', 'greet'], '歡迎', 'more', 'W/welcome_b.mp4'),
   ],
 };
 const manifest = {
   buildId: 'e2e-1',
   clips: Object.entries(FIXTURE_CLIPS).map(([video, b]) => ({ video, size: b.length })),
 };
+
+// REAL=1: serve the real sign list (dist/data) and the encoded clips instead of the fixtures.
+const REAL = process.env.REAL === '1';
 
 const state = { notFound: new Set(), swSuffix: '', inflight: 0, peak: 0, clipHits: {}, delayMs: 40 };
 const reset = () => {
@@ -66,8 +83,8 @@ createServer(async (req, res) => {
   }
   if (path === '/__stats') return send(200, JSON.stringify({ peak: state.peak, clipHits: state.clipHits }), 'application/json');
 
-  if (path === '/data/lexicon.json') return send(200, JSON.stringify(lexicon), 'application/json');
-  if (path === '/data/manifest.json') return send(200, JSON.stringify(manifest), 'application/json');
+  if (!REAL && path === '/data/lexicon.json') return send(200, JSON.stringify(lexicon), 'application/json');
+  if (!REAL && path === '/data/manifest.json') return send(200, JSON.stringify(manifest), 'application/json');
 
   if (path.startsWith('/clips/')) {
     const video = path.slice('/clips/'.length);
@@ -75,6 +92,13 @@ createServer(async (req, res) => {
     state.peak = Math.max(state.peak, ++state.inflight);
     await new Promise((r) => setTimeout(r, state.delayMs));
     state.inflight--;
+    if (REAL) {
+      try {
+        return send(200, await readFile(join(realDir, video)), 'video/mp4');
+      } catch {
+        return send(404, 'nope');
+      }
+    }
     if (state.notFound.has(video) || !FIXTURE_CLIPS[video]) return send(404, 'nope');
     return send(200, FIXTURE_CLIPS[video], 'video/mp4');
   }

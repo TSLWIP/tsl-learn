@@ -2,6 +2,8 @@ import { PoliteFetcher } from '../clips/fetcher.ts';
 import { checkClips, downloadClips, type Manifest, type PackCheck } from '../clips/pack.ts';
 import { loadContentSource, type ContentSource } from '../config.ts';
 import type { Lexicon } from '../lexicon/types.ts';
+import { buildIndex, type MatchIndex } from '../match/index.ts';
+import { DEFAULT_PREFS, loadFlags, loadPrefs, type MissingFlag, type Prefs } from '../state/prefs.ts';
 import { NewerSchemaError, openDatabase } from '../storage/db.ts';
 import { Repo } from '../storage/repo.ts';
 
@@ -10,6 +12,9 @@ export interface AppContext {
   repo: Repo | null;
   lexicon: Lexicon;
   manifest: Manifest;
+  index: MatchIndex;
+  initialPrefs: Prefs;
+  initialFlags: MissingFlag[];
   source: ContentSource;
   fetcher: PoliteFetcher;
   persisted: boolean;
@@ -116,7 +121,9 @@ export async function boot(onState: (s: BootState) => void): Promise<AppContext>
     }
   }
 
-  const ctx: AppContext = { repo, lexicon, manifest, source, fetcher, persisted, notes };
+  const initialPrefs = repo ? await loadPrefs(repo).catch(() => DEFAULT_PREFS) : DEFAULT_PREFS;
+  const initialFlags = repo ? await loadFlags(repo).catch(() => []) : [];
+  const ctx: AppContext = { repo, lexicon, manifest, index: buildIndex(lexicon), initialPrefs, initialFlags, source, fetcher, persisted, notes };
   onState({ phase: 'ready', ctx });
   return ctx;
 }

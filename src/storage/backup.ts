@@ -9,12 +9,15 @@ export interface BackupFile {
   progress: unknown[];
   reviews: unknown[];
   decks: unknown[];
+  prefs?: unknown;
+  missingFlags?: unknown;
 }
 
 export class BackupError extends Error {}
 
 export async function exportBackup(repo: Repo): Promise<BackupFile> {
   const [progress, reviews, decks] = await Promise.all([repo.allProgress(), repo.allReviews(), repo.allDecks()]);
+  const [prefs, missingFlags] = await Promise.all([repo.getMeta('prefs'), repo.getMeta('missingFlags')]);
   const exportedAt = Date.now();
   await repo.setMeta('lastExportAt', exportedAt);
   return {
@@ -24,6 +27,8 @@ export async function exportBackup(repo: Repo): Promise<BackupFile> {
     progress,
     reviews: reviews.map(({ id: _id, ...rest }) => rest),
     decks,
+    prefs,
+    missingFlags,
   };
 }
 
@@ -57,5 +62,8 @@ export async function importBackup(
   skipped += (b.reviews?.length ?? 0) - events.length;
   await repo.addReviews(events.map(({ signId, at, grade, mode }) => ({ signId, at, grade, mode })));
   for (const d of (b.decks ?? []) as Deck[]) if (d && typeof d.id === 'string') await repo.putDeck(d);
+  // Settings only fill gaps: a fresh install adopts them, a device with its own choices keeps them.
+  if (b.prefs && (await repo.getMeta('prefs')) === undefined) await repo.setMeta('prefs', b.prefs);
+  if (Array.isArray(b.missingFlags) && (await repo.getMeta('missingFlags')) === undefined) await repo.setMeta('missingFlags', b.missingFlags);
   return { progress, reviews: events.length, skipped };
 }

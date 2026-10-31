@@ -9,6 +9,8 @@ export interface LexEntry {
   dialect: Dialect;
   /** required whenever the primary English gloss maps to more than one entry and dialect does not tell them apart */
   senseLabel?: string;
+  /** how the sign is made, when the dictionary data has it */
+  description?: string;
   /** path relative to the content source root */
   video: string;
   sourceUrl: string;
