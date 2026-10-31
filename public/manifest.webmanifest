@@ -1,0 +1,10 @@
+{
+  "name": "TSL Learn",
+  "short_name": "TSL Learn",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f1e9",
+  "theme_color": "#f6f1e9",
+  "icons": []
+}

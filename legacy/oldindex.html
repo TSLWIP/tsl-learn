@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TSL">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d1017">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230d1017'/%3E%3Ctext x='90' y='120' font-size='90' text-anchor='middle' font-family='system-ui' fill='%230db8a4'%3E🤟%3C/text%3E%3C/svg%3E">
+<title>TSL Translator 4</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d1017; --surface:#161b22; --surface2:#1e2430; --surface3:#252c3a;
+  --border:#2a303c; --text:#e2e6ed; --dim:#8892a4; --dimmer:#4a5568;
+  --teal:#0db8a4; --teal-bg:rgba(13,184,164,.12); --teal-bdr:rgba(13,184,164,.38);
+  --amber:#f0a020; --amber-bg:rgba(240,160,32,.12); --amber-bdr:rgba(240,160,32,.38);
+  --red:#e05252; --blue:#5b8dee; --purple:#a064dc; --green:#28c77a;
+  --font:'DM Sans',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  --r:8px; --r-sm:4px; --r-lg:12px; --fs:14px;
+}
+.theme-light {
+  --bg:#f4f6fa; --surface:#ffffff; --surface2:#f0f2f7; --surface3:#e4e8f0;
+  --border:#d0d6e4; --text:#1a1f2e; --dim:#4a5568; --dimmer:#8892a4;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:var(--fs);line-height:1.6;min-height:100vh;transition:background .2s,color .2s}
+#app{max-width:980px;margin:0 auto;padding:16px 16px 64px}
+
+/* BROWSER ERROR */
+#no-support{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;gap:16px}
+#no-support h2{font-size:22px;color:var(--amber)}
+
+/* SETTINGS BAR */
+.settings-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.sbar-btn{width:32px;height:32px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface2);color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s}
+.sbar-btn:hover{border-color:var(--teal);color:var(--teal)}
+.sbar-btn.active{background:var(--teal-bg);border-color:var(--teal);color:var(--teal)}
+.font-btns{display:flex;gap:2px}
+.sbar-spacer{flex:1}
+.sbar-label{font-size:12px;color:var(--dimmer)}
+
+/* CARD + HEADER */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:12px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.app-title{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.app-title em{font-style:normal;color:var(--teal)}
+.dialect-selector{display:flex;gap:6px}
+.dial-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--dim);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;transition:all .15s}
+.dial-btn:hover{border-color:var(--teal);color:var(--teal)}
+.dial-btn.active{background:var(--teal-bg);border-color:var(--teal);color:var(--teal)}
+
+/* BUTTONS */
+.btn-primary{padding:8px 16px;background:var(--teal);color:#000;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;transition:opacity .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-primary:hover{opacity:.82}
+.btn-secondary{padding:6px 12px;background:var(--surface2);color:var(--dim);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.btn-secondary:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm{padding:5px 11px;background:var(--teal);color:#000;border:none;border-radius:var(--r-sm);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;transition:opacity .15s;white-space:nowrap}
+.btn-sm:hover{opacity:.82}
+.btn-ghost{padding:5px 10px;background:var(--surface2);color:var(--dim);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+
+/* FOLDER */
+.folder-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.folder-status{font-size:12px;color:var(--dim)}
+.folder-status.ok{color:var(--teal)} .folder-status.err{color:var(--red)}
+
+/* INPUT */
+.input-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+textarea,input[type=text],input[type=search]{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:14px;padding:8px 12px;transition:border-color .15s}
+textarea{flex:1;resize:vertical;min-height:68px;line-height:1.55}
+textarea:focus,input[type=text]:focus,input[type=search]:focus{outline:none;border-color:var(--teal)}
+textarea::placeholder,input::placeholder{color:var(--dimmer)}
+.input-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tog{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--dim);font-size:12px;user-select:none}
+.tog input[type=checkbox]{width:14px;height:14px;accent-color:var(--teal);cursor:pointer}
+.missing-hint{font-size:11px;color:var(--amber);margin-top:5px;display:none}
+/* Autocomplete */
+.autocomplete-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;display:none}
+.ac-chip{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--dim);transition:all .12s;white-space:nowrap}
+.ac-chip:hover{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-bdr)}
+.ac-chip.compound{border-color:var(--amber-bdr);color:var(--amber);background:var(--amber-bg)}
+.ac-chip.compound:hover{filter:brightness(1.2)}
+
+/* DIFF */
+#diff-section{display:none}
+.diff-title{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer);margin-bottom:8px}
+.diff-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px}
+.diff-label{font-family:var(--mono);font-size:10px;color:var(--dimmer);min-width:28px;padding-top:4px;text-align:right;flex-shrink:0}
+.diff-chips{display:flex;flex-wrap:wrap;gap:4px}
+.dchip{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:var(--r-sm);background:var(--surface2);color:var(--dim);border:1px solid var(--border)}
+.dchip.moved{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-bdr)}
+
+/* TOKENS */
+#tokens-section{display:none}
+.tokens-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.tokens-title{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer)}
+.token-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:5px}
+.token-badge.found{background:var(--teal-bg);color:var(--teal)}
+.token-badge.missing{background:var(--amber-bg);color:var(--amber)}
+.tokens-list{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-family:var(--mono);font-size:11px;font-weight:500;padding:4px 9px;border-radius:16px;cursor:pointer;border:1.5px solid transparent;transition:all .15s;user-select:none;display:inline-flex;align-items:center;gap:4px;position:relative}
+.pill.found{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-bdr)}
+.pill.found:hover{background:rgba(13,184,164,.22)}
+.pill.missing{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bdr)}
+.pill.missing:hover{background:rgba(240,160,32,.22)}
+.pill.compound{border-style:dashed}
+.pill.fingerspell{opacity:.75;font-size:10px}
+.pill.active{box-shadow:0 0 0 2px currentColor}
+.pill-idx{font-size:9px;opacity:.5}
+.pill-cat{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.04em}
+.pill-edit{font-size:10px;opacity:.3;cursor:pointer;padding:0 2px;transition:opacity .12s}
+.pill-edit:hover{opacity:1}
+.cat-TIME{background:rgba(91,141,238,.2);color:var(--blue)}
+.cat-NEGATION{background:rgba(224,82,82,.2);color:var(--red)}
+.cat-WH{background:rgba(160,100,220,.2);color:var(--purple)}
+.cat-NOUN,.cat-VERB,.cat-ADJECTIVE,.cat-ADVERB,.cat-NUMBER,.cat-CLASSIFIER,.cat-PROPER_NOUN{background:var(--surface3);color:var(--dimmer)}
+#override-panel{display:none;background:var(--surface2);border:1px solid var(--teal-bdr);border-radius:var(--r);padding:10px;margin-bottom:8px}
+/* Thumbnail tooltip */
+#thumb-tip{position:fixed;pointer-events:none;z-index:9999;display:none;background:#000;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+#thumb-tip canvas{display:block}
+#thumb-tip-label{font-family:var(--mono);font-size:10px;color:#fff;padding:3px 6px;background:rgba(0,0,0,.7);text-align:center}
+
+/* PLAYER */
+#player-section{display:none}
+.player-body{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+@media(max-width:600px){.player-body{grid-template-columns:1fr}}
+.video-wrap{position:relative;background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;border:1px solid var(--border)}
+video{width:100%;height:100%;object-fit:contain;display:block}
+.sign-overlay{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.72);backdrop-filter:blur(6px);color:#fff;font-family:var(--mono);font-size:13px;font-weight:600;padding:3px 12px;border-radius:4px;pointer-events:none;opacity:0;transition:opacity .18s;white-space:nowrap}
+.sign-overlay.show{opacity:1}
+.placeholder-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface2);opacity:0;transition:opacity .18s;pointer-events:none}
+.placeholder-overlay.show{opacity:1}
+.ph-name{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--amber);margin-bottom:6px}
+.ph-label{font-size:11px;color:var(--dimmer)}
+.video-progress{position:absolute;bottom:0;left:0;right:0;height:4px;background:var(--border);z-index:5;transition:opacity .18s}
+.video-progress-fill{height:100%;background:var(--teal);width:0%;transition:width .08s linear}
+/* Sign info panel */
+.sign-info-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;min-width:160px;font-size:12px}
+.si-sign{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--teal);margin-bottom:6px;word-break:break-all}
+.si-row{display:flex;gap:6px;margin-bottom:4px;align-items:center;flex-wrap:wrap}
+.si-key{color:var(--dimmer);font-size:10px;min-width:52px}
+.si-val{color:var(--dim);font-size:11px}
+.si-freq{display:inline-block;background:var(--teal-bg);color:var(--teal);font-size:10px;padding:1px 6px;border-radius:8px}
+.si-note{font-size:11px;color:var(--dim);margin-top:6px;border-top:1px solid var(--border);padding-top:6px;font-style:italic}
+.si-note-empty{color:var(--dimmer)}
+/* Controls */
+.controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cbt{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:14px;flex-shrink:0}
+.cbt:hover:not(:disabled){border-color:var(--teal);color:var(--teal)}
+.cbt:disabled{opacity:.3;cursor:not-allowed}
+.cbt.play{width:42px;height:42px;background:var(--teal);border-color:var(--teal);color:#000;font-size:16px}
+.cbt.play:hover:not(:disabled){opacity:.82}
+.spacer{flex:1}
+.counter{font-family:var(--mono);font-size:11px;color:var(--dimmer);min-width:48px;text-align:center}
+.ctrl-group{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--dim)}
+select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:var(--font);font-size:12px;padding:4px 7px;cursor:pointer}
+select:focus{outline:none;border-color:var(--teal)}
+/* Variant comparison */
+.variant-panel{display:none;margin-top:10px;gap:8px;grid-template-columns:1fr 1fr}
+.variant-panel.show{display:grid}
+.variant-label{font-family:var(--mono);font-size:11px;color:var(--dim);margin-bottom:4px;text-align:center}
+.variant-vid{width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--r-sm);border:1px solid var(--border)}
+
+/* COLLAPSIBLES */
+details.card{padding:0;overflow:hidden}
+details.card>summary{padding:13px 18px;cursor:pointer;display:flex;align-items:center;gap:7px;font-weight:600;font-size:13px;user-select:none;list-style:none;transition:background .12s}
+details.card>summary::before{content:'▶';font-size:9px;color:var(--dimmer);transition:transform .2s;flex-shrink:0}
+details[open].card>summary::before{transform:rotate(90deg)}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary:hover{background:var(--surface2)}
+.det-body{padding:4px 18px 18px;border-top:1px solid var(--border)}
+
+/* FORMS */
+.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.map-inp{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:var(--font);font-size:12px;padding:6px 9px;width:120px;transition:border-color .15s}
+.map-inp:focus{outline:none;border-color:var(--teal)}
+.arr{color:var(--dimmer);font-size:17px;flex-shrink:0}
+.list-scroll{max-height:220px;overflow-y:auto;margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.mitem{display:flex;align-items:center;gap:7px;font-size:12px;background:var(--surface2);padding:5px 9px;border-radius:var(--r-sm);border:1px solid var(--border)}
+.mfrom{font-family:var(--mono);color:var(--dim);min-width:70px}
+.mto{font-family:var(--mono);color:var(--teal)}
+.mdel{margin-left:auto;background:none;border:none;color:var(--dimmer);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;transition:all .12s}
+.mdel:hover{color:var(--red)}
+.file-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.file-label{cursor:pointer}
+
+/* PROFILES */
+.profile-bar{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.profile-label{font-size:11px;color:var(--dimmer)}
+
+/* VOCAB BROWSER */
+.vocab-top{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.vocab-search{flex:1;min-width:160px;font-size:12px;padding:6px 10px}
+.vocab-count{font-size:11px;color:var(--dimmer);white-space:nowrap}
+.feature-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;padding:10px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)}
+.feature-row.active{border-color:var(--teal-bdr);background:var(--teal-bg)}
+.feature-sel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:var(--font);font-size:12px;padding:5px 7px;cursor:pointer;flex:1;min-width:140px}
+.feature-sel:focus{outline:none;border-color:var(--teal)}
+.vocab-grid{display:flex;flex-wrap:wrap;gap:4px;max-height:280px;overflow-y:auto;margin-top:8px}
+.vchip{font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 8px;border-radius:4px;background:var(--surface3);color:var(--dim);border:1px solid var(--border);cursor:pointer;transition:all .12s;white-space:nowrap}
+.vchip:hover{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-bdr)}
+.vchip.fuzzy{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bdr)}
+.vchip.tagged{border-color:var(--green);color:var(--green);background:rgba(40,199,122,.08)}
+.vocab-empty{font-size:12px;color:var(--dimmer);padding:10px 0}
+.vocab-sep{width:100%;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer);padding:5px 0 2px}
+.phon-tag{font-size:9px;color:var(--dimmer);font-family:var(--mono);display:block}
+
+/* HANDSHAPE GRID */
+.hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:4px;max-height:340px;overflow-y:auto;margin-top:10px}
+.hs-cell{border:1.5px solid var(--border);border-radius:var(--r-sm);cursor:pointer;padding:4px;text-align:center;background:var(--surface2);transition:all .15s;position:relative;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.hs-cell:hover{border-color:var(--teal)}
+.hs-cell.selected{border-color:var(--teal);background:var(--teal-bg)}
+.hs-cell.has-img{border-color:var(--green)}
+.hs-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px;display:block}
+.hs-name{font-family:var(--mono);font-size:9px;color:var(--dim);line-height:1.2;word-break:break-word}
+.hs-upload-btn{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:9px;cursor:pointer;border-radius:3px;padding:1px 4px;opacity:0;transition:opacity .12s}
+.hs-cell:hover .hs-upload-btn{opacity:1}
+.hs-cell-input{display:none}
+
+/* SVG BODY MAP */
+.body-map-wrap{display:flex;justify-content:center;margin-top:10px}
+#body-map{cursor:pointer;max-height:360px}
+.body-zone{fill:rgba(13,184,164,0);stroke:rgba(13,184,164,0);stroke-width:1;transition:fill .12s,stroke .12s}
+.body-zone:hover{fill:rgba(13,184,164,.2);stroke:rgba(13,184,164,.5)}
+.body-zone.selected{fill:rgba(13,184,164,.35);stroke:rgba(13,184,164,.8)}
+.body-outline{fill:var(--surface3);stroke:var(--border);stroke-width:1.5}
+
+/* PHRASEBOOK */
+.phrase-save-row{display:flex;gap:7px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.phrase-item{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 10px;margin-bottom:4px;cursor:pointer;transition:border-color .12s}
+.phrase-item:hover{border-color:var(--teal)}
+.phrase-text{flex:1;font-size:12px;word-break:break-word}
+.phrase-tags{display:flex;gap:3px;flex-wrap:wrap}
+.phrase-tag{font-size:10px;padding:1px 6px;border-radius:8px;background:var(--teal-bg);color:var(--teal)}
+.phrase-del{background:none;border:none;color:var(--dimmer);cursor:pointer;font-size:13px;padding:2px;border-radius:3px;flex-shrink:0}
+.phrase-del:hover{color:var(--red)}
+.tag-input{width:120px;font-size:12px;padding:5px 8px}
+
+/* HISTORY */
+.history-search{width:100%;margin-top:10px;font-size:12px;padding:6px 10px}
+.history-item{display:block;width:100%;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 10px;margin-bottom:4px;color:var(--text);font-size:12px;cursor:pointer;transition:all .12s;word-break:break-word}
+.history-item:hover{border-color:var(--teal);color:var(--teal)}
+.history-empty{font-size:12px;color:var(--dimmer);padding:8px 0}
+
+/* BATCH TRANSLATE */
+.batch-result{margin-top:10px;font-family:var(--mono);font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px;max-height:240px;overflow-y:auto;white-space:pre-wrap;color:var(--text)}
+.batch-row{padding:3px 0;border-bottom:1px solid var(--border)}
+.batch-en{color:var(--dim);font-size:10px}
+.batch-tsl{color:var(--teal)}
+
+/* PRESENTER MODE */
+#presenter-overlay{display:none;position:fixed;inset:0;background:#000;z-index:10000;flex-direction:column;align-items:center;justify-content:center}
+#presenter-overlay.show{display:flex}
+#presenter-video-wrap{position:relative;width:90vw;max-height:80vh;aspect-ratio:16/9;background:#000}
+#presenter-video-wrap video{width:100%;height:100%;object-fit:contain}
+.presenter-sign{font-family:var(--mono);font-size:clamp(24px,4vw,48px);font-weight:700;color:var(--teal);margin-top:16px;letter-spacing:.05em}
+.presenter-counter{font-size:16px;color:var(--dimmer);margin-top:6px;font-family:var(--mono)}
+.presenter-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:20px;cursor:pointer;padding:6px 10px;border-radius:var(--r-sm)}
+.presenter-progress{position:absolute;bottom:0;left:0;right:0;height:4px;background:rgba(255,255,255,.1)}
+.presenter-progress-fill{height:100%;background:var(--teal);width:0%;transition:width .08s linear}
+
+/* MISC */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.sep{width:1px;height:18px;background:var(--border);flex-shrink:0}
+#kb-legend{text-align:center;padding:12px 0 4px;font-size:11px;color:var(--dimmer)}
+#kb-legend span{font-family:var(--mono)}
+input[type=file]{display:none}
+.note-ta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;resize:vertical;min-height:60px}
+.note-ta:focus{outline:none;border-color:var(--teal)}
+
+/* PWA / Touch improvements */
+#install-banner{display:none;align-items:center;gap:10px;background:var(--teal-bg);border:1px solid var(--teal-bdr);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--teal)}
+#install-banner .ib-close{margin-left:auto;background:none;border:none;color:var(--teal);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:3px}
+/* Safe area for iPad notch */
+#app{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* Larger touch targets */
+.btn-primary,.btn-secondary,.btn-sm,.btn-ghost{min-height:44px}
+.sbar-btn{width:44px;height:44px}
+.cbt{width:44px;height:44px}
+.cbt.play{width:50px;height:50px}
+.dial-btn{min-height:40px;padding:8px 14px}
+.tog{min-height:36px}
+select{min-height:40px;-webkit-appearance:none}
+textarea,input[type=text],input[type=search]{-webkit-appearance:none;padding:10px 12px}
+/* Suppress tap highlight */
+*{-webkit-tap-highlight-color:transparent}
+/* video needs playsinline on iOS — handled in HTML */
+/* Import progress */
+#import-progress{display:none;margin-top:10px}
+.import-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.import-bar{height:100%;background:var(--teal);border-radius:3px;width:0%;transition:width .1s}
+.import-label{font-size:11px;color:var(--dim)}
+.storage-info{font-size:11px;color:var(--dimmer);margin-top:4px}
+.library-actions{display:none;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+
+/* Keep input visible when keyboard appears on iPad */
+#input-card{transition:none}
+.keyboard-open #input-card{position:relative;z-index:10}
+
+/* DIALECT BADGE on pills */
+.pill-dialect{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.04em;background:rgba(91,141,238,.2);color:var(--blue);margin-left:1px}
+.pill-dialect.south{background:rgba(160,100,220,.2);color:var(--purple)}
+.pill-dialect.default{background:var(--surface3);color:var(--dimmer)}
+
+/* MISSING SIGN REPORT */
+#missing-report{margin-top:10px;display:none}
+.missing-report-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.missing-report-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}
+.missing-report-count{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-bg);padding:2px 8px;border-radius:10px}
+.missing-report-list{display:flex;flex-wrap:wrap;gap:4px;max-height:120px;overflow-y:auto}
+.missing-chip{font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:4px;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bdr)}
+.missing-report-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+
+/* CONFIDENCE INDICATOR */
+.pill-conf{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;letter-spacing:.04em;margin-left:1px}
+.conf-exact{background:rgba(40,199,122,.2);color:var(--green)}
+.conf-mapped{background:rgba(13,184,164,.2);color:var(--teal)}
+.conf-lemma{background:rgba(91,141,238,.2);color:var(--blue)}
+.conf-fuzzy{background:rgba(240,160,32,.2);color:var(--amber)}
+.conf-fingerspell{background:var(--surface3);color:var(--dimmer)}
+.conf-proper{background:rgba(160,100,220,.2);color:var(--purple)}
+.conf-synonym{background:rgba(240,100,180,.18);color:#e060b0}
+
+/* SYNONYM SUGGESTIONS PANEL */
+#synonym-section{display:none;margin-top:8px;padding:10px 12px;background:var(--amber-bg);border:1px solid var(--amber-bdr);border-radius:var(--r);font-size:12px}
+.syn-title{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
+.syn-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.syn-chip{font-family:var(--mono);font-size:11px;padding:5px 9px;border-radius:12px;cursor:pointer;border:1px solid var(--amber-bdr);background:var(--surface2);color:var(--amber);transition:all .12s;min-height:32px;touch-action:manipulation}
+.syn-chip:hover{background:var(--amber-bg);filter:brightness(1.2)}
+
+/* SYNONYM MANAGER in settings */
+.syn-manager{margin-top:10px}
+.syn-manager-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.syn-list-item{display:flex;align-items:center;gap:6px;font-size:11px;background:var(--surface2);padding:5px 8px;border-radius:var(--r-sm);border:1px solid var(--border);margin-bottom:3px}
+.syn-word{font-family:var(--mono);color:var(--dim);min-width:80px}
+.syn-sign{font-family:var(--mono);color:var(--amber)}
+.syn-del{margin-left:auto;background:none;border:none;color:var(--dimmer);cursor:pointer;font-size:12px;padding:2px 6px;min-width:24px;min-height:24px;touch-action:manipulation}
+.syn-del:hover{color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="main">
+
+    <!-- iOS Install Banner -->
+    <div id="install-banner">
+      <span style="font-size:18px">📲</span>
+      <span>Install as app: tap <strong>Share</strong> → <strong>Add to Home Screen</strong> for offline use.</span>
+      <button class="ib-close" onclick="document.getElementById('install-banner').style.display='none'">✕</button>
+    </div>
+
+    <!-- Settings bar -->
+    <div class="settings-bar">
+      <button class="sbar-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark theme">☀</button>
+      <div class="font-btns">
+        <button class="sbar-btn" onclick="adjustFont(-1)" title="Smaller text">A−</button>
+        <button class="sbar-btn" onclick="adjustFont(1)" title="Larger text">A+</button>
+      </div>
+      <div class="sep"></div>
+      <button class="sbar-btn" id="btn-presenter" onclick="togglePresenter()" title="Presenter mode (fullscreen clean view)">⛶</button>
+      <label class="tog sbar-label"><input type="checkbox" id="fs-toggle" checked onchange="state.settings.fingerspell=this.checked"> Fingerspell fallback</label>
+      <label class="tog sbar-label"><input type="checkbox" id="num-toggle" checked onchange="state.settings.numbers=this.checked"> Number detection</label>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <h1 class="app-title"><em>TSL</em> Translator</h1>
+      <div class="dialect-selector">
+        <button class="dial-btn active" id="btn-north" onclick="setDialect('north')">North (Taipei)</button>
+        <button class="dial-btn" id="btn-south" onclick="setDialect('south')">South (Tainan)</button>
+      </div>
+    </header>
+
+    <!-- Video Library (iPad/Desktop compatible — no File System Access API needed) -->
+    <div class="card">
+      <div class="folder-row">
+        <button class="btn-primary" onclick="document.getElementById('video-folder-input').click()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 012.5 2h3.586a1 1 0 01.707.293L8.5 4H13.5A1.5 1.5 0 0115 5.5v7A1.5 1.5 0 0113.5 14h-11A1.5 1.5 0 011 12.5V3.5z"/></svg>
+          Import Video Folder
+        </button>
+        <button class="btn-secondary" onclick="document.getElementById('video-files-input').click()">+ Add Videos</button>
+        <span class="folder-status" id="folder-status">No videos loaded</span>
+      </div>
+      <div id="storage-info" class="storage-info"></div>
+      <div id="missing-report">
+        <div class="missing-report-header">
+          <span class="missing-report-title">⚠ Signs with no video</span>
+          <span class="missing-report-count" id="missing-report-count">0</span>
+        </div>
+        <div class="missing-report-list" id="missing-report-list"></div>
+        <div class="missing-report-actions">
+          <button class="btn-ghost" style="font-size:11px" onclick="exportMissingReport()">💾 Export list</button>
+          <button class="btn-ghost" style="font-size:11px" onclick="clearMissingReport()" style="color:var(--red)">Clear</button>
+          <span style="font-size:10px;color:var(--dimmer)">Accumulated across all translations this session</span>
+        </div>
+      </div>
+      <div id="import-progress">
+        <div class="import-track"><div class="import-bar" id="import-bar"></div></div>
+        <div class="import-label" id="import-label">Importing…</div>
+      </div>
+      <input type="file" id="video-folder-input" webkitdirectory multiple accept=".mp4,video/mp4" onchange="handleVideoFiles(this.files)" style="display:none">
+      <input type="file" id="video-files-input" multiple accept=".mp4,video/mp4" onchange="handleVideoFiles(this.files)" style="display:none">
+      <div class="library-actions" id="library-actions">
+        <button class="btn-ghost" onclick="clearVideoLibrary()" style="color:var(--red)">🗑 Clear Library</button>
+        <span id="lib-clear-status" style="font-size:11px;color:var(--dim)"></span>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="card">
+      <div class="input-row">
+        <textarea id="input-text" placeholder="Type an English sentence… TSL grammar applied automatically" rows="3" onkeydown="handleTextKey(event)"></textarea>
+        <div style="display:flex;flex-direction:column;gap:6px;align-self:flex-end">
+          <button class="btn-primary" onclick="translate()" title="Translate (Enter)">Translate ⏎</button>
+          <button class="btn-secondary" onclick="saveCurrentPhrase()" title="Save to Phrasebook">⭐ Save</button>
+        </div>
+      </div>
+      <div class="input-controls">
+        <label class="tog"><input type="checkbox" id="grammar-toggle" checked onchange="translate()"> TSL Grammar</label>
+        <div class="sep"></div>
+        <label class="tog"><input type="checkbox" id="auto-adv-toggle" checked onchange="state.autoAdvance=this.checked"> Auto-advance</label>
+      </div>
+      <div class="autocomplete-row" id="autocomplete-row"></div>
+      <div class="missing-hint" id="missing-hint">⚠ No video for: <span id="missing-words" style="font-family:var(--mono)"></span>
+        <button class="btn-ghost" style="margin-left:8px;font-size:10px" onclick="exportMissing()">Export list</button>
+      </div>
+      <!-- Synonym suggestions -->
+      <div id="synonym-section">
+        <div class="syn-title">💡 Synonym suggestions — tap to use</div>
+        <div class="syn-chips" id="syn-chips"></div>
+        <div style="font-size:10px;color:var(--dimmer)">These signs may express a similar meaning. Tap to swap in your translation.</div>
+      </div>
+    </div>
+
+    <!-- Diff -->
+    <div class="card" id="diff-section" style="display:none">
+      <div class="diff-title">TSL Grammar Reordering</div>
+      <div class="diff-row"><span class="diff-label">EN</span><div class="diff-chips" id="diff-en"></div></div>
+      <div class="diff-row"><span class="diff-label">TSL</span><div class="diff-chips" id="diff-tsl"></div></div>
+    </div>
+
+    <!-- Tokens -->
+    <div class="card" id="tokens-section" style="display:none">
+      <div class="tokens-header">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="tokens-title">Sign Tokens</span>
+          <span class="token-badge found" id="badge-found" style="display:none"></span>
+          <span class="token-badge missing" id="badge-missing" style="display:none"></span>
+        </div>
+        <div style="display:flex;gap:5px">
+          <button class="btn-ghost" onclick="copyGloss()">Copy gloss</button>
+          <button class="btn-ghost" onclick="exportGloss()">Export</button>
+        </div>
+      </div>
+      <div id="override-panel">
+        <div style="font-size:11px;color:var(--dim);margin-bottom:6px">Override sign for: <strong id="override-word" style="font-family:var(--mono)"></strong></div>
+        <div class="row" style="margin-top:0">
+          <input id="override-input" class="map-inp" placeholder="SIGN NAME" style="font-family:var(--mono);flex:1;min-width:130px" onkeydown="if(event.key==='Enter')applyOverride();if(event.key==='Escape')closeOverride()">
+          <button class="btn-sm" onclick="applyOverride()">Apply</button>
+          <button class="btn-ghost" onclick="closeOverride()">✕</button>
+        </div>
+      </div>
+      <div class="tokens-list" id="tokens-list"></div>
+    </div>
+
+    <!-- Player -->
+    <div class="card" id="player-section" style="display:none">
+      <div class="player-body">
+        <div>
+          <div class="video-wrap" id="video-wrap">
+            <video id="video-el" preload="auto" playsinline></video>
+            <div class="sign-overlay" id="sign-overlay"></div>
+            <div class="placeholder-overlay" id="ph-overlay">
+              <div class="ph-name" id="ph-name"></div>
+              <div class="ph-label">No video — skipping…</div>
+            </div>
+            <div class="video-progress" id="video-progress"><div class="video-progress-fill" id="vp-fill"></div></div>
+          </div>
+          <!-- Variant comparison -->
+          <div class="variant-panel" id="variant-panel">
+            <div><div class="variant-label">North (Taipei)</div><video class="variant-vid" id="var-north" controls muted playsinline></video></div>
+            <div><div class="variant-label">South (Tainan)</div><video class="variant-vid" id="var-south" controls muted playsinline></video></div>
+          </div>
+        </div>
+        <!-- Sign info panel -->
+        <div class="sign-info-panel" id="sign-info">
+          <div class="si-sign" id="si-sign">—</div>
+          <div class="si-row"><span class="si-key">Handshape</span><span class="si-val" id="si-hs">—</span></div>
+          <div class="si-row"><span class="si-key">Location</span><span class="si-val" id="si-loc">—</span></div>
+          <div class="si-row"><span class="si-key">Used</span><span class="si-freq" id="si-freq">0</span></div>
+          <div class="si-note" id="si-note-display">
+            <div class="si-note-empty">No notes</div>
+          </div>
+          <div style="margin-top:8px">
+            <button class="btn-ghost" style="width:100%;font-size:11px" onclick="toggleVariant()">Compare N/S</button>
+          </div>
+          <div style="margin-top:5px">
+            <textarea class="note-ta" id="note-input" placeholder="Add note for this sign…" oninput="saveSignNote()" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="cbt" id="btn-prev" onclick="prevSign()" title="← Previous" disabled>⏮</button>
+        <button class="cbt play" id="btn-play" onclick="togglePlay()" title="Space" disabled>&#9654;</button>
+        <button class="cbt" id="btn-next" onclick="nextSign()" title="→ Next" disabled>⏭</button>
+        <span class="counter" id="counter">— / —</span>
+        <div class="spacer"></div>
+        <div class="ctrl-group">
+          <label>Speed</label>
+          <select id="speed-sel" onchange="setSpeed(this.value)">
+            <option value="0.5">½×</option><option value="0.75">¾×</option>
+            <option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+          </select>
+        </div>
+        <div class="ctrl-group">
+          <label>Repeat</label>
+          <select id="repeat-sel" onchange="state.repeatCount=parseInt(this.value);state.repeatDone=0">
+            <option value="1">1×</option><option value="2">2×</option>
+            <option value="3">3×</option><option value="5">5×</option>
+          </select>
+        </div>
+        <div class="ctrl-group">
+          <label>Gap</label>
+          <select id="gap-sel" onchange="state.signGap=parseInt(this.value)">
+            <option value="0">None</option><option value="500">0.5s</option>
+            <option value="1000">1s</option><option value="2000">2s</option>
+          </select>
+        </div>
+        <button class="cbt" id="btn-repeat" onclick="replaySign()" title="Replay" disabled style="font-size:15px">↺</button>
+        <button class="cbt" id="btn-loop" onclick="toggleLoop()" title="Loop (L)" style="font-size:16px">↻</button>
+        <button class="cbt" id="btn-fs" onclick="toggleFullscreen()" title="Fullscreen (F)" style="font-size:12px">⛶</button>
+      </div>
+    </div>
+
+    <!-- Phrasebook -->
+    <details class="card" id="phrasebook-section">
+      <summary>⭐ Phrasebook</summary>
+      <div class="det-body">
+        <p style="font-size:12px;color:var(--dim);margin-top:6px">Sentences saved for reuse. Click any to load and translate.</p>
+        <div class="phrase-save-row">
+          <input type="text" id="phrase-tag-input" class="tag-input" placeholder="Tags (comma-sep)" autocomplete="off">
+          <button class="btn-sm" onclick="saveCurrentPhrase()">Save current sentence</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          <input type="search" id="phrase-search" placeholder="Search phrases…" style="flex:1;min-width:140px;font-size:12px;padding:5px 10px" oninput="renderPhrasebook()">
+          <button class="btn-ghost" onclick="exportPhrasebook()">💾 Export</button>
+          <label class="btn-ghost">📂 Import<input type="file" accept=".json" onchange="importPhrasebook(this)"></label>
+        </div>
+        <div id="phrasebook-list" style="margin-top:8px"></div>
+      </div>
+    </details>
+
+    <!-- Custom Mappings + Profiles -->
+    <details class="card" id="custom-mappings-section">
+      <summary>Custom Word Mappings</summary>
+      <div class="det-body">
+        <div class="profile-bar">
+          <span class="profile-label">Profile:</span>
+          <select id="profile-select" onchange="switchProfile(this.value)" style="font-size:12px;padding:4px 7px"></select>
+          <input type="text" id="new-profile-name" placeholder="New profile name…" style="font-size:12px;padding:4px 8px;width:140px" onkeydown="if(event.key==='Enter')addProfile()">
+          <button class="btn-sm" onclick="addProfile()">+ Add</button>
+          <button class="btn-ghost" onclick="deleteProfile()" style="color:var(--red);border-color:rgba(224,82,82,.3)">Delete</button>
+        </div>
+        <div class="row">
+          <input class="map-inp" id="map-from" placeholder="English word" autocomplete="off">
+          <span class="arr">→</span>
+          <input class="map-inp" id="map-to" placeholder="SIGN NAME" autocomplete="off" style="font-family:var(--mono)">
+          <button class="btn-sm" onclick="addMapping()">Add</button>
+        </div>
+        <div class="list-scroll" id="mappings-list"></div>
+        <div class="file-row">
+          <button class="btn-ghost" onclick="saveMappingsFile()">💾 Save</button>
+          <label class="btn-ghost file-label">📂 Load<input type="file" accept=".json" onchange="loadMappingsFile(this)"></label>
+          <span id="map-file-status" style="font-size:11px;color:var(--dim)"></span>
+        </div>
+      </div>
+    </details>
+
+    <!-- Vocabulary Browser -->
+    <details class="card" id="vocab-section">
+      <summary>Vocabulary Browser</summary>
+      <div class="det-body">
+        <div class="vocab-top">
+          <input class="vocab-search" type="search" id="vocab-search" placeholder="Search signs…" oninput="filterVocab()" autocomplete="off">
+          <label class="tog" style="font-size:11px"><input type="checkbox" id="fuzzy-toggle" checked> Fuzzy</label>
+          <span class="vocab-count" id="vocab-count">No folder loaded</span>
+          <button class="btn-sm" id="copy-all-btn" onclick="copyAllSigns()" disabled>Copy all</button>
+        </div>
+        <div class="feature-row" id="feature-row">
+          <span style="font-size:11px;color:var(--dim);white-space:nowrap">🔍 Features:</span>
+          <select class="feature-sel" id="fs-hs" onchange="filterVocab()"><option value="">Any handshape</option></select>
+          <select class="feature-sel" id="fs-loc" onchange="filterVocab()"><option value="">Any location</option></select>
+          <button class="btn-ghost" onclick="clearFeatureSearch()">Clear</button>
+          <span id="fs-hint" style="font-size:10px;color:var(--dimmer);flex:1;text-align:right">Select to search by physical features</span>
+        </div>
+        <div class="vocab-grid" id="vocab-grid"><div class="vocab-empty">Open a video folder to see available signs.</div></div>
+      </div>
+    </details>
+
+    <!-- Sign Phonology -->
+    <details class="card" id="phonology-section">
+      <summary>Sign Phonology — Handshape &amp; Location</summary>
+      <div class="det-body">
+        <p style="font-size:12px;color:var(--dim);margin-top:6px">Tag signs with the 62 TSL handshapes and 30 locations (Tsay 2019). Click a cell to select; hover the camera icon to upload your own image.</p>
+        <!-- Handshape grid -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="font-size:11px;font-weight:600;color:var(--dimmer)">HANDSHAPE — <span id="hs-selected-label" style="color:var(--teal)">none selected</span></span>
+          <button class="btn-ghost" onclick="clearHsSelection()" style="font-size:10px">Clear</button>
+        </div>
+        <div class="hs-grid" id="hs-grid"></div>
+        <!-- Location body map -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="font-size:11px;font-weight:600;color:var(--dimmer)">LOCATION — <span id="loc-selected-label" style="color:var(--teal)">none selected</span></span>
+          <button class="btn-ghost" onclick="clearLocSelection()" style="font-size:10px">Clear</button>
+        </div>
+        <div class="body-map-wrap">
+          <svg id="body-map" viewBox="0 0 280 430" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px">
+            <!-- Body outline -->
+            <ellipse class="body-outline" cx="140" cy="72" rx="46" ry="56"/>
+            <rect class="body-outline" x="124" y="126" width="32" height="26" rx="4"/>
+            <polygon class="body-outline" points="60,150 220,150 215,178 65,178"/>
+            <rect class="body-outline" x="65" y="178" width="150" height="145" rx="4"/>
+            <rect class="body-outline" x="38" y="150" width="28" height="108" rx="6"/>
+            <rect class="body-outline" x="214" y="150" width="28" height="108" rx="6"/>
+            <rect class="body-outline" x="42" y="260" width="20" height="80" rx="4"/>
+            <rect class="body-outline" x="218" y="260" width="20" height="80" rx="4"/>
+            <rect class="body-outline" x="40" y="340" width="24" height="22" rx="4"/>
+            <rect class="body-outline" x="216" y="340" width="24" height="22" rx="4"/>
+            <rect class="body-outline" x="38" y="360" width="28" height="50" rx="4"/>
+            <rect class="body-outline" x="214" y="360" width="28" height="50" rx="4"/>
+            <rect class="body-outline" x="90" y="323" width="44" height="107" rx="4"/>
+            <rect class="body-outline" x="146" y="323" width="44" height="107" rx="4"/>
+            <!-- Clickable zones -->
+            <ellipse class="body-zone" data-loc="Forehead" cx="140" cy="44" rx="32" ry="20" title="Forehead"/>
+            <ellipse class="body-zone" data-loc="Eyes" cx="140" cy="66" rx="26" ry="10" title="Eyes"/>
+            <ellipse class="body-zone" data-loc="Nose" cx="140" cy="82" rx="12" ry="10" title="Nose"/>
+            <ellipse class="body-zone" data-loc="Mouth" cx="140" cy="97" rx="18" ry="8" title="Mouth"/>
+            <ellipse class="body-zone" data-loc="Chin" cx="140" cy="112" rx="14" ry="8" title="Chin"/>
+            <ellipse class="body-zone" data-loc="Cheek" cx="118" cy="80" rx="10" ry="14" title="Cheek (L)"/>
+            <ellipse class="body-zone" data-loc="Cheek" cx="162" cy="80" rx="10" ry="14" title="Cheek (R)"/>
+            <ellipse class="body-zone" data-loc="Temple" cx="102" cy="62" rx="10" ry="12" title="Temple"/>
+            <ellipse class="body-zone" data-loc="Temple" cx="178" cy="62" rx="10" ry="12" title="Temple"/>
+            <ellipse class="body-zone" data-loc="Ears" cx="98" cy="76" rx="9" ry="12" title="Ears"/>
+            <ellipse class="body-zone" data-loc="Ears" cx="182" cy="76" rx="9" ry="12" title="Ears"/>
+            <ellipse class="body-zone" data-loc="Lower Face" cx="140" cy="104" rx="20" ry="12" title="Lower Face"/>
+            <ellipse class="body-zone" data-loc="Head" cx="140" cy="72" rx="46" ry="56" title="Head (general)" style="fill:rgba(13,184,164,0);stroke:rgba(13,184,164,0)"/>
+            <ellipse class="body-zone" data-loc="In front of Face" cx="140" cy="60" rx="56" ry="65" title="In front of Face" style="opacity:.4"/>
+            <rect class="body-zone" data-loc="Neck" x="126" y="128" width="28" height="22" rx="4" title="Neck"/>
+            <polygon class="body-zone" data-loc="Shoulders" points="65,152 215,152 210,176 70,176" title="Shoulders"/>
+            <rect class="body-zone" data-loc="Chest" x="70" y="178" width="140" height="65" rx="2" title="Chest"/>
+            <rect class="body-zone" data-loc="Abdomen" x="72" y="243" width="136" height="50" rx="2" title="Abdomen"/>
+            <rect class="body-zone" data-loc="Waist" x="74" y="293" width="132" height="30" rx="2" title="Waist"/>
+            <rect class="body-zone" data-loc="Upper Arm" x="40" y="152" width="24" height="104" rx="4" title="Upper Arm (L)"/>
+            <rect class="body-zone" data-loc="Upper Arm" x="216" y="152" width="24" height="104" rx="4" title="Upper Arm (R)"/>
+            <rect class="body-zone" data-loc="Elbow" x="38" y="252" width="28" height="18" rx="4" title="Elbow"/>
+            <rect class="body-zone" data-loc="Elbow" x="214" y="252" width="28" height="18" rx="4" title="Elbow"/>
+            <rect class="body-zone" data-loc="Lower Arm" x="42" y="268" width="20" height="70" rx="4" title="Lower Arm (L)"/>
+            <rect class="body-zone" data-loc="Lower Arm" x="218" y="268" width="20" height="70" rx="4" title="Lower Arm (R)"/>
+            <rect class="body-zone" data-loc="Wrist" x="40" y="338" width="24" height="22" rx="4" title="Wrist"/>
+            <rect class="body-zone" data-loc="Wrist" x="216" y="338" width="24" height="22" rx="4" title="Wrist"/>
+            <rect class="body-zone" data-loc="Hand" x="36" y="358" width="30" height="52" rx="4" title="Hand (L)"/>
+            <rect class="body-zone" data-loc="Hand" x="214" y="358" width="30" height="52" rx="4" title="Hand (R)"/>
+            <rect class="body-zone" data-loc="Palm" x="38" y="368" width="26" height="34" rx="3" title="Palm"/>
+            <rect class="body-zone" data-loc="Fingers" x="38" y="358" width="26" height="16" rx="3" title="Fingers"/>
+            <rect class="body-zone" data-loc="Legs" x="90" y="325" width="100" height="105" rx="4" title="Legs"/>
+            <rect class="body-zone" data-loc="In front of Body" x="76" y="182" width="128" height="138" rx="4" title="In front of Body" style="opacity:.3"/>
+            <rect class="body-zone" data-loc="Both sides of Body" x="14" y="178" width="52" height="100" rx="4" title="Both sides of Body (L)" style="opacity:.5"/>
+            <rect class="body-zone" data-loc="Both sides of Body" x="214" y="178" width="52" height="100" rx="4" title="Both sides of Body (R)" style="opacity:.5"/>
+            <rect class="body-zone" data-loc="Back of Hand" x="216" y="368" width="26" height="34" rx="3" title="Back of Hand"/>
+            <rect class="body-zone" data-loc="Blades of Hand" x="214" y="385" width="30" height="16" rx="3" title="Blades of Hand"/>
+            <rect class="body-zone" data-loc="Back" x="68" y="180" width="144" height="143" rx="4" title="Back" style="fill:rgba(91,141,238,0);stroke:rgba(91,141,238,0)"/>
+            <rect class="body-zone" data-loc="Arm" x="36" y="152" width="28" height="260" rx="6" title="Arm (general L)" style="opacity:.25"/>
+          </svg>
+        </div>
+        <!-- Bulk assign -->
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <p style="font-size:11px;color:var(--dimmer);margin-bottom:8px">Select handshape + location above, then enter sign names to tag:</p>
+          <textarea id="phon-signs" placeholder="Sign names — one per line or comma-separated&#10;Must match indexed sign names exactly" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:var(--mono);font-size:11px;padding:7px 10px;resize:vertical"></textarea>
+          <div class="file-row">
+            <button class="btn-sm" onclick="bulkAssignPhonology()">Assign</button>
+            <button class="btn-ghost" onclick="savePhonFile()">💾 Save</button>
+            <label class="btn-ghost file-label">📂 Load<input type="file" accept=".json" onchange="loadPhonFile(this)"></label>
+            <button class="btn-ghost" onclick="clearAllPhon()" style="color:var(--red)">Clear all</button>
+            <span id="phon-status" style="font-size:11px;color:var(--dim)"></span>
+          </div>
+          <div id="phon-stats" style="font-size:11px;color:var(--dimmer);margin-top:6px"></div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Lexical Categories -->
+    <details class="card" id="lexical-section">
+      <summary>Lexical Categories</summary>
+      <div class="det-body">
+        <p style="font-size:12px;color:var(--dim);margin-top:6px"><strong style="color:var(--blue)">TIME</strong> → front · <strong style="color:var(--red)">NEGATION</strong> → after content · <strong style="color:var(--purple)">WH</strong> → end</p>
+        <div class="row">
+          <select id="lex-cat-sel" style="font-size:12px;padding:6px 8px">
+            <option value="NOUN">Noun</option><option value="VERB">Verb</option>
+            <option value="ADJECTIVE">Adjective</option><option value="ADVERB">Adverb</option>
+            <option value="TIME">Time → front</option><option value="NEGATION">Negation → after</option>
+            <option value="WH">WH-Question → end</option><option value="NUMBER">Number</option>
+            <option value="CLASSIFIER">Classifier</option><option value="PROPER_NOUN">Proper Noun</option>
+          </select>
+          <textarea id="lex-words-input" placeholder="Words to assign (comma or newline)" rows="2" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:var(--font);font-size:12px;padding:6px 9px;resize:vertical;min-height:54px"></textarea>
+          <button class="btn-sm" onclick="bulkAssignCategory()" style="align-self:flex-start">Assign</button>
+        </div>
+        <div class="file-row">
+          <button class="btn-ghost" onclick="saveLexFile()">💾 Save</button>
+          <label class="btn-ghost file-label">📂 Load<input type="file" accept=".json" onchange="loadLexFile(this)"></label>
+          <button class="btn-ghost" onclick="clearAllCats()" style="color:var(--red)">Clear all</button>
+          <span id="lex-status" style="font-size:11px;color:var(--dim)"></span>
+        </div>
+        <div id="lex-list" style="margin-top:8px"></div>
+      </div>
+    </details>
+
+    <!-- Batch Translate -->
+    <details class="card" id="batch-section">
+      <summary>Batch Translate</summary>
+      <div class="det-body">
+        <p style="font-size:12px;color:var(--dim);margin-top:6px">Paste multiple sentences (one per line) to get the full TSL gloss for each.</p>
+        <textarea id="batch-input" placeholder="How are you?&#10;I go school tomorrow.&#10;Where did you eat yesterday?" rows="5" style="width:100%;margin-top:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;resize:vertical"></textarea>
+        <div class="file-row">
+          <button class="btn-sm" onclick="runBatchTranslate()">Translate all</button>
+          <button class="btn-ghost" onclick="exportBatchResult()">💾 Export result</button>
+        </div>
+        <div id="batch-result" class="batch-result" style="display:none"></div>
+      </div>
+    </details>
+
+    <!-- Synonym Manager -->
+    <details class="card" id="synonym-manager-section">
+      <summary>Synonym Manager</summary>
+      <div class="det-body">
+        <p style="font-size:12px;color:var(--dim);margin-top:6px">Add your own synonyms — English word → TSL sign name. These are checked before the built-in synonym list.</p>
+        <div class="syn-manager">
+          <div class="syn-manager-row">
+            <input class="map-inp" id="syn-from" placeholder="English word" autocomplete="off" style="width:130px">
+            <span class="arr">→</span>
+            <input class="map-inp" id="syn-to" placeholder="SIGN NAME" autocomplete="off" style="font-family:var(--mono);width:130px">
+            <button class="btn-sm" onclick="addUserSynonym()">Add</button>
+          </div>
+          <div class="list-scroll" id="user-syn-list" style="max-height:180px"></div>
+          <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+            <p style="font-size:11px;color:var(--dimmer);margin-bottom:6px">Built-in synonyms (${Object.keys(BUILTIN_SYNONYMS).length} entries) — view and override below</p>
+            <input type="search" id="builtin-syn-search" placeholder="Search built-in synonyms…" style="width:100%;font-size:12px;padding:7px 10px;margin-bottom:6px;min-height:38px" oninput="renderBuiltinSynonyms()">
+            <div class="list-scroll" id="builtin-syn-list" style="max-height:200px"></div>
+          </div>
+          <div class="file-row">
+            <button class="btn-ghost" onclick="saveSynFile()">💾 Save</button>
+            <label class="btn-ghost file-label">📂 Load<input type="file" accept=".json" onchange="loadSynFile(this)"></label>
+            <span id="syn-status" style="font-size:11px;color:var(--dim)"></span>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Bulk Mapping Import -->
+    <details class="card" id="bulk-import-section">
+      <summary>Bulk Mapping Import</summary>
+      <div class="det-body">
+        <p style="font-size:12px;color:var(--dim);margin-top:6px">Paste mappings: <span style="font-family:var(--mono)">word → SIGN</span> one per line.</p>
+        <textarea id="bulk-import-text" placeholder="joyful → HAPPY&#10;glad → HAPPY&#10;automobile → CAR" rows="5"
+          style="width:100%;margin-top:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:12px;padding:9px 12px;resize:vertical"
+          onkeydown="if(event.key==='Tab'){event.preventDefault();this.setRangeText('\t',this.selectionStart,this.selectionEnd,'end')}"></textarea>
+        <div class="file-row">
+          <button class="btn-sm" onclick="importBulkMappings()">Import</button>
+          <button class="btn-ghost" onclick="exportMappings()">Export to textarea</button>
+          <button class="btn-ghost" onclick="saveBulkFile()">💾 Save file</button>
+          <span id="bulk-status" style="font-size:11px;color:var(--dim)"></span>
+        </div>
+      </div>
+    </details>
+
+    <!-- Sentence History -->
+    <details class="card" id="history-section">
+      <summary>Sentence History</summary>
+      <div class="det-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <input type="search" class="history-search" id="history-search" placeholder="Search history…" oninput="renderHistory()" style="flex:1;margin-right:8px;margin-top:0">
+          <button class="btn-ghost" onclick="clearHistory()" style="color:var(--red)">Clear</button>
+        </div>
+        <div id="history-list" style="margin-top:8px"><div class="history-empty">No history yet.</div></div>
+      </div>
+    </details>
+
+    <!-- Keyboard Legend -->
+    <div id="kb-legend">
+      <span>Space</span> Play · <span>←</span> Prev · <span>→</span> Next · <span>L</span> Loop · <span>R</span> Restart · <span>F</span> Fullscreen · <span>P</span> Presenter
+    </div>
+
+  </div><!-- #main -->
+</div><!-- #app -->
+
+<!-- Presenter overlay -->
+<div id="presenter-overlay">
+  <button class="presenter-close" onclick="togglePresenter()">✕</button>
+  <div id="presenter-video-wrap">
+    <video id="pres-video" preload="auto" playsinline></video>
+    <div class="presenter-progress"><div class="presenter-progress-fill" id="pres-fill"></div></div>
+  </div>
+  <div class="presenter-sign" id="pres-sign">—</div>
+  <div class="presenter-counter" id="pres-counter">— / —</div>
+</div>
+
+<!-- Thumbnail tooltip -->
+<div id="thumb-tip">
+  <canvas id="thumb-canvas" width="160" height="90"></canvas>
+  <div id="thumb-tip-label"></div>
+</div>
+
+<script>
+'use strict';
+
+// ═══ TSL PHONOLOGICAL INVENTORIES (Tsay 2019) ═══
+const TSL_HANDSHAPES=['Open A','Flexed A','B','Open B','Bent B','C','Bent C','F','Open F','G','I','Flat I','Curved I','K','Open K','L','Bent L','Curved L','Curved-baby L','Flexed L','Extended N','O','Open O','Flat O','Baby O','Bent-baby O','R','S','U','V','Curved V','W','Curved W','Unspread W','X','Y','L-I','X-I','1-I','Flat 1-I','1','3','Curved 3','4','Curved 4','5','Bent 5','5-Curved Pinky','Curved 5-Pinky','Piled 5','8','Open 8','Crossed Thumb-Index','Thumb-Middle-Pinky','Curved-Index','Curved Middle','Middle','Curved-Index-Middle','Ring','Ring-Pinky','Bent Curved-Index-Middle','Thumb-Pinky'];
+const TSL_LOCATIONS=['Forehead','Temple','Eyes','Nose','Ears','Cheek','Mouth','Chin','Lower Face','In front of Face','Head','Neck','Shoulders','Chest','Abdomen','Waist','Legs','In front of Body','Back','Both sides of Body','Lower Arm','Upper Arm','Arm','Elbow','Fingers','Palm','Blades of Hand','Back of Hand','Hand','Wrist'];
+
+
+// ═══ BUILT-IN SYNONYMS (English word → TSL sign name) ═══
+// Common synonyms / near-equivalents for everyday words
+const BUILTIN_SYNONYMS={
+  // Emotions
+  'happy':'HAPPY','glad':'HAPPY','joyful':'HAPPY','cheerful':'HAPPY','pleased':'HAPPY','delighted':'HAPPY',
+  'sad':'SAD','unhappy':'SAD','upset':'SAD','sorrowful':'SAD','down':'SAD','miserable':'SAD',
+  'angry':'ANGRY','mad':'ANGRY','furious':'ANGRY','annoyed':'ANGRY','irritated':'ANGRY',
+  'scared':'SCARED','afraid':'SCARED','frightened':'SCARED','terrified':'SCARED','nervous':'SCARED',
+  'surprised':'SURPRISED','shocked':'SURPRISED','amazed':'SURPRISED','astonished':'SURPRISED',
+  'tired':'TIRED','exhausted':'TIRED','sleepy':'TIRED','weary':'TIRED','fatigued':'TIRED',
+  'sick':'SICK','ill':'SICK','unwell':'SICK','nauseous':'SICK','vomiting':'SICK',
+  'hurt':'HURT','pain':'HURT','ache':'HURT','sore':'HURT','injured':'HURT',
+  'love':'LOVE','adore':'LOVE','cherish':'LOVE','care':'LOVE',
+  'hate':'HATE','dislike':'HATE','despise':'HATE','loathe':'HATE',
+  // Movement
+  'walk':'WALK','stroll':'WALK','wander':'WALK','hike':'WALK',
+  'run':'RUN','jog':'RUN','sprint':'RUN','rush':'RUN','hurry':'RUN',
+  'drive':'DRIVE','travel':'TRAVEL','commute':'DRIVE',
+  'fly':'FLY','soar':'FLY',
+  // Communication
+  'speak':'SPEAK','talk':'SPEAK','chat':'SPEAK','converse':'SPEAK','discuss':'SPEAK',
+  'ask':'ASK','inquire':'ASK','question':'ASK','wonder':'ASK',
+  'tell':'TELL','explain':'TELL','describe':'TELL','inform':'TELL',
+  'write':'WRITE','type':'WRITE','text':'WRITE',
+  'read':'READ','study':'STUDY','learn':'LEARN','practice':'PRACTICE',
+  // Food & Daily
+  'eat':'EAT','consume':'EAT','dine':'EAT','snack':'EAT',
+  'drink':'DRINK','sip':'DRINK','swallow':'DRINK',
+  'cook':'COOK','prepare':'COOK','bake':'COOK','make':'MAKE',
+  'sleep':'SLEEP','rest':'SLEEP','nap':'SLEEP','slumber':'SLEEP',
+  'wake':'WAKE','rise':'WAKE',
+  'wash':'WASH','clean':'CLEAN','tidy':'CLEAN','brush':'BRUSH',
+  'buy':'BUY','purchase':'BUY','shop':'SHOP','pay':'PAY',
+  'work':'WORK','labor':'WORK','job':'WORK','employment':'WORK',
+  'play':'PLAY','fun':'FUN','enjoy':'ENJOY','entertain':'PLAY',
+  // Time
+  'immediately':'NOW','instantly':'NOW','right-now':'NOW',
+  'previously':'BEFORE','formerly':'BEFORE','past':'BEFORE',
+  'eventually':'LATER','soon':'SOON','shortly':'SOON',
+  // Quantity / degree
+  'big':'BIG','large':'BIG','huge':'BIG','enormous':'BIG','giant':'BIG',
+  'small':'SMALL','little':'SMALL','tiny':'SMALL','mini':'SMALL',
+  'many':'MANY','lots':'MANY','numerous':'MANY','several':'MANY','plenty':'MANY',
+  'few':'FEW','some':'SOME','couple':'FEW',
+  'fast':'FAST','quick':'FAST','rapid':'FAST','swift':'FAST','speedy':'FAST',
+  'slow':'SLOW','sluggish':'SLOW','gradual':'SLOW',
+  // People
+  'mom':'MOTHER','mum':'MOTHER','mama':'MOTHER',
+  'dad':'FATHER','papa':'FATHER','pop':'FATHER',
+  'sibling':'SIBLING','bro':'BROTHER','sis':'SISTER',
+  'friend':'FRIEND','buddy':'FRIEND','pal':'FRIEND','mate':'FRIEND',
+  'teacher':'TEACHER','instructor':'TEACHER','tutor':'TEACHER',
+  'doctor':'DOCTOR','physician':'DOCTOR','nurse':'NURSE',
+  'police':'POLICE','officer':'POLICE','cop':'POLICE',
+  // Places
+  'home':'HOME','house':'HOME','apartment':'HOME',
+  'school':'SCHOOL','college':'SCHOOL','university':'SCHOOL',
+  'hospital':'HOSPITAL','clinic':'HOSPITAL',
+  'store':'STORE','shop':'STORE','market':'STORE','supermarket':'STORE',
+  // Common adjectives
+  'good':'GOOD','great':'GOOD','excellent':'GOOD','wonderful':'GOOD','fine':'GOOD',
+  'bad':'BAD','terrible':'BAD','awful':'BAD','horrible':'BAD','poor':'BAD',
+  'correct':'CORRECT','right':'CORRECT','accurate':'CORRECT',
+  'wrong':'WRONG','incorrect':'WRONG','mistaken':'WRONG',
+  'beautiful':'BEAUTIFUL','pretty':'BEAUTIFUL','lovely':'BEAUTIFUL','gorgeous':'BEAUTIFUL',
+  'ugly':'UGLY','unattractive':'UGLY',
+  'hot':'HOT','warm':'WARM','cold':'COLD','cool':'COOL','freezing':'COLD',
+  'difficult':'DIFFICULT','hard':'DIFFICULT','tough':'DIFFICULT','challenging':'DIFFICULT',
+  'easy':'EASY','simple':'EASY','straightforward':'EASY',
+  'important':'IMPORTANT','significant':'IMPORTANT','crucial':'IMPORTANT',
+  'interesting':'INTERESTING','fascinating':'INTERESTING','curious':'INTERESTING',
+  'boring':'BORING','dull':'BORING','tedious':'BORING',
+  'rich':'RICH','wealthy':'RICH','affluent':'RICH',
+  'poor':'POOR','broke':'POOR','needy':'POOR',
+  'new':'NEW','fresh':'NEW','recent':'NEW','modern':'NEW',
+  'old':'OLD','ancient':'OLD','aged':'OLD','elderly':'OLD',
+  'young':'YOUNG','youthful':'YOUNG','teen':'YOUNG',
+  'tall':'TALL','high':'TALL',
+  'short':'SHORT','low':'SHORT',
+  'thin':'THIN','slim':'THIN','skinny':'THIN',
+  'fat':'FAT','chubby':'FAT','heavy':'FAT','overweight':'FAT',
+  // Common verbs
+  'want':'WANT','wish':'WANT','desire':'WANT','crave':'WANT','need':'NEED',
+  'have':'HAVE','own':'HAVE','possess':'HAVE',
+  'give':'GIVE','offer':'GIVE','provide':'GIVE','donate':'GIVE',
+  'take':'TAKE','grab':'TAKE','pick':'TAKE','receive':'RECEIVE','get':'GET',
+  'see':'SEE','look':'LOOK','watch':'WATCH','observe':'SEE','notice':'SEE',
+  'hear':'HEAR','listen':'HEAR','sound':'HEAR',
+  'know':'KNOW','understand':'UNDERSTAND','realize':'KNOW','recognize':'KNOW',
+  'think':'THINK','believe':'THINK','consider':'THINK','suppose':'THINK',
+  'like':'LIKE','enjoy':'ENJOY','prefer':'LIKE','appreciate':'LIKE',
+  'help':'HELP','assist':'HELP','support':'HELP','aid':'HELP',
+  'stop':'STOP','quit':'STOP','cease':'STOP','end':'STOP','finish':'FINISH',
+  'start':'START','begin':'START','commence':'START',
+  'wait':'WAIT','pause':'WAIT','hold':'WAIT',
+  'come':'COME','arrive':'COME','approach':'COME',
+  'go':'GO','leave':'GO','depart':'GO','exit':'GO',
+  'live':'LIVE','reside':'LIVE','stay':'STAY',
+  'meet':'MEET','gather':'MEET','join':'JOIN',
+  'open':'OPEN','unlock':'OPEN',
+  'close':'CLOSE','shut':'CLOSE','lock':'CLOSE',
+  'try':'TRY','attempt':'TRY','effort':'TRY',
+  'forget':'FORGET','remember':'REMEMBER','recall':'REMEMBER',
+  'lose':'LOSE','drop':'LOSE','misplace':'LOSE',
+  'find':'FIND','discover':'FIND','locate':'FIND',
+  'show':'SHOW','demonstrate':'SHOW','present':'SHOW','display':'SHOW',
+  'agree':'AGREE','accept':'AGREE','approve':'AGREE',
+  'disagree':'DISAGREE','refuse':'REFUSE','reject':'REFUSE','deny':'REFUSE',
+  'worry':'WORRY','stress':'WORRY','anxious':'WORRY',
+  'hope':'HOPE','wish':'HOPE','dream':'HOPE',
+  'change':'CHANGE','modify':'CHANGE','alter':'CHANGE','adjust':'CHANGE',
+  'use':'USE','utilize':'USE','apply':'USE',
+  'depend':'DEPEND','rely':'DEPEND','trust':'TRUST','believe':'BELIEVE',
+};
+
+// ═══ NUMBERS ═══
+const NUM_SIGNS={0:'ZERO',1:'ONE',2:'TWO',3:'THREE',4:'FOUR',5:'FIVE',6:'SIX',7:'SEVEN',8:'EIGHT',9:'NINE',10:'TEN',11:'ELEVEN',12:'TWELVE',13:'THIRTEEN',14:'FOURTEEN',15:'FIFTEEN',16:'SIXTEEN',17:'SEVENTEEN',18:'EIGHTEEN',19:'NINETEEN',20:'TWENTY',30:'THIRTY',40:'FORTY',50:'FIFTY',60:'SIXTY',70:'SEVENTY',80:'EIGHTY',90:'NINETY',100:'HUNDRED',1000:'THOUSAND',1000000:'MILLION'};
+const NUM_WORDS={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100,thousand:1000,million:1000000};
+
+function numToSigns(n){
+  if(n<0)return['NEGATIVE',...numToSigns(-n)];
+  if(n<=20&&NUM_SIGNS[n])return[NUM_SIGNS[n]];
+  if(n<100){const t=Math.floor(n/10)*10,o=n%10;return o?[NUM_SIGNS[t],NUM_SIGNS[o]]:[NUM_SIGNS[t]];}
+  if(n<1000){const h=Math.floor(n/100),r=n%100;return r?[...numToSigns(h),'HUNDRED',...numToSigns(r)]:[...numToSigns(h),'HUNDRED'];}
+  return[n.toString()];
+}
+
+// ═══ GRAMMAR CONSTANTS ═══
+const DROP_WORDS=new Set(['a','an','the','is','are','was','were','am','be','been','being','to','of','at','in','on','for','did','does','do','will','shall','would','could','should','may','might','must','have','has','had']);
+const TIME_WORDS=new Set(['today','yesterday','tomorrow','now','later','before','after','morning','afternoon','evening','night','monday','tuesday','wednesday','thursday','friday','saturday','sunday','already','always','soon','recently','last','next','ago','daily','weekly','monthly','yearly','annually','early','late','midnight','noon','dawn','sunrise','sunset','nightly']);
+const NEG_WORDS=new Set(['not','never','no','nobody','nothing','nowhere','neither','nor']);
+const WH_WORDS=new Set(['who','what','where','when','why','how','which','whose','whom']);
+const CAT_ABBR={NOUN:'N',VERB:'V',ADJECTIVE:'ADJ',ADVERB:'ADV',TIME:'TIME',NEGATION:'NEG',WH:'WH',NUMBER:'NUM',CLASSIFIER:'CL',PROPER_NOUN:'PN'};
+
+const IRREGULAR={went:'go',gone:'go',came:'come',saw:'see',seen:'see',ate:'eat',eaten:'eat',drank:'drink',drunk:'drink',ran:'run',spoke:'speak',spoken:'speak',took:'take',taken:'take',gave:'give',given:'give',got:'get',gotten:'get',made:'make',knew:'know',known:'know',thought:'think',brought:'bring',bought:'buy',caught:'catch',taught:'teach',told:'tell',said:'say',felt:'feel',found:'find',kept:'keep',left:'leave',lost:'lose',meant:'mean',met:'meet',paid:'pay',sent:'send',shown:'show',showed:'show',stood:'stand',understood:'understand',wore:'wear',worn:'wear',wrote:'write',written:'write',broke:'break',broken:'break',chose:'choose',chosen:'choose',drew:'draw',drawn:'draw',drove:'drive',driven:'drive',fell:'fall',fallen:'fall',grew:'grow',grown:'grow',heard:'hear',held:'hold',hid:'hide',hidden:'hide',led:'lead',rode:'ride',ridden:'ride',rose:'rise',risen:'rise',sat:'sit',slept:'sleep',spent:'spend',swam:'swim',swum:'swim',threw:'throw',thrown:'throw',woke:'wake',woken:'wake',won:'win',built:'build',bled:'bleed',dug:'dig',fed:'feed',fought:'fight',fled:'flee',flew:'fly',flown:'fly',froze:'freeze',frozen:'freeze',hung:'hang',laid:'lay',lent:'lend',lit:'light',rang:'ring',rung:'ring',sang:'sing',sung:'sing',sank:'sink',sunk:'sink',slid:'slide',sold:'sell',sought:'seek',shook:'shake',shaken:'shake',shot:'shoot',stole:'steal',stolen:'steal',swore:'swear',sworn:'swear',swept:'sweep',swung:'swing',tore:'tear',torn:'tear',wept:'weep',wound:'wind',crept:'creep',knelt:'kneel',leapt:'leap',dreamt:'dream',smelt:'smell'};
+const CONTRACTIONS={"don't":'not',dont:'not',"i'm":'i',"can't":'not',cant:'not',"won't":'not',wont:'not',"doesn't":'not',"didn't":'not',"isn't":'not',"aren't":'not',"wasn't":'not',"weren't":'not',"haven't":'not',"hasn't":'not',"hadn't":'not',"shouldn't":'not',"wouldn't":'not',"couldn't":'not',"i've":'i',"we've":'we',"they've":'they',"you've":'you',"i'll":'i',"they'll":'they',"you'll":'you',"he'll":'he',"she'll":'she',"it's":'it',"that's":'that',"there's":'there',"here's":'here',"what's":'what',"who's":'who',"he's":'he',"she's":'she',"they're":'they',"you're":'you',"we're":'we',"we'll":'we',"i'd":'i',"we'd":'we',"they'd":'they',"you'd":'you',"he'd":'he',"she'd":'she'};
+
+// ═══ STATE ═══
+const state={
+  fileIndex:{},allWords:[],phraseIndex:{},phraseList:[],
+  missingSignsReport:new Set(),
+  userSynonyms:{}, // user-defined overrides/additions to BUILTIN_SYNONYMS
+  dialect:'north',grammarEnabled:true,
+  tokens:[],currentIdx:-1,isPlaying:false,autoAdvance:true,
+  speed:1,repeatCount:1,repeatDone:0,signGap:0,
+  customMappings:{},lexicalCategories:{},signMeta:{},signNotes:{},signFreq:{},
+  profiles:{'Default':{}},currentProfile:'Default',
+  phrasebook:[],sentenceHistory:[],
+  currentObjectUrl:null,skipTimer:null,gapTimer:null,
+  loopEnabled:false,overrideIdx:-1,
+  preload:{idx:-1,url:null},
+  presenterMode:false,
+  selectedHs:'',selectedLoc:'',
+  thumbCache:{},
+  batchResult:[],
+  settings:{fingerspell:true,numbers:true,theme:'dark',fontSize:14}
+};
+
+// Works on all modern browsers including Safari/iOS — no File System API needed
+
+// ═══ POPULATE SELECTS ═══
+(function initSelects(){
+  ['fs-hs','phon-hs-dummy'].forEach(()=>{});
+  const hsOpts=TSL_HANDSHAPES.map(h=>`<option value="${esc(h)}">${esc(h)}</option>`).join('');
+  const locOpts=TSL_LOCATIONS.map(l=>`<option value="${esc(l)}">${esc(l)}</option>`).join('');
+  const fsh=document.getElementById('fs-hs');
+  if(fsh)fsh.innerHTML='<option value="">Any handshape</option>'+hsOpts;
+  const fsl=document.getElementById('fs-loc');
+  if(fsl)fsl.innerHTML='<option value="">Any location</option>'+locOpts;
+})();
+
+// ═══ INDEXEDDB — Images (handshape photos) ═══
+const IMG_DB='tsl-images-v1',IMG_STORE='images';
+function idbOpen(name,store,ver){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(name,ver||1);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore(store);
+    r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);
+  });
+}
+async function imgSave(key,dataUrl){
+  try{const db=await idbOpen(IMG_DB,IMG_STORE);const tx=db.transaction(IMG_STORE,'readwrite');tx.objectStore(IMG_STORE).put(dataUrl,key);await new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=e=>rej(e.target.error)});db.close();}catch(e){}
+}
+async function imgLoad(key){
+  try{const db=await idbOpen(IMG_DB,IMG_STORE);const v=await new Promise((res,rej)=>{const r=db.transaction(IMG_STORE,'readonly').objectStore(IMG_STORE).get(key);r.onsuccess=e=>res(e.target.result||null);r.onerror=e=>rej(e.target.error);});db.close();return v;}catch(e){return null;}
+}
+async function imgLoadAll(){
+  try{const db=await idbOpen(IMG_DB,IMG_STORE);const all={};await new Promise((res,rej)=>{const r=db.transaction(IMG_STORE,'readonly').objectStore(IMG_STORE).openCursor();r.onsuccess=e=>{const cur=e.target.result;if(cur){all[cur.key]=cur.value;cur.continue();}else res();};r.onerror=e=>rej(e.target.error);});db.close();return all;}catch(e){return{};}
+}
+
+// ═══ INDEXEDDB — Video Blobs (persistent on-device library) ═══
+const VID_DB='tsl-videos-v1',VID_STORE='vids';
+function vidDbOpen(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(VID_DB,1);
+    r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(VID_STORE))db.createObjectStore(VID_STORE);};
+    r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error);
+  });
+}
+async function saveVideoBlob(key,blob){
+  const db=await vidDbOpen();
+  const tx=db.transaction(VID_STORE,'readwrite');
+  tx.objectStore(VID_STORE).put(blob,key);
+  await new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=e=>rej(e.target.error);});
+  db.close();
+}
+async function getVideoBlob(signName,variant){
+  try{const db=await vidDbOpen();
+    const blob=await new Promise((res,rej)=>{const r=db.transaction(VID_STORE,'readonly').objectStore(VID_STORE).get(signName+'_'+variant);r.onsuccess=e=>res(e.target.result||null);r.onerror=e=>rej(e.target.error);});
+    db.close();return blob;}catch(e){return null;}
+}
+async function getAllVideoKeys(){
+  try{const db=await vidDbOpen();
+    const keys=await new Promise((res,rej)=>{const r=db.transaction(VID_STORE,'readonly').objectStore(VID_STORE).getAllKeys();r.onsuccess=e=>res(e.target.result||[]);r.onerror=e=>rej(e.target.error);});
+    db.close();return keys;}catch(e){return[];}
+}
+async function clearVideoDB(){
+  const db=await vidDbOpen();const tx=db.transaction(VID_STORE,'readwrite');tx.objectStore(VID_STORE).clear();
+  await new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=e=>rej(e.target.error);});db.close();
+}
+
+// ═══ VIDEO IMPORT (works on all platforms: Safari, iOS, Chrome, Firefox) ═══
+async function handleVideoFiles(files){
+  const mp4s=Array.from(files).filter(f=>f.name.toLowerCase().endsWith('.mp4'));
+  if(!mp4s.length)return;
+  const s=document.getElementById('folder-status');
+  const prog=document.getElementById('import-progress');
+  const bar=document.getElementById('import-bar');
+  const lbl=document.getElementById('import-label');
+  prog.style.display='block';bar.style.width='0%';
+  s.textContent='Importing…';s.className='folder-status';
+  let done=0;const total=mp4s.length;
+  for(const file of mp4s){
+    const{word,variant}=parseFilename(file.name);
+    await saveVideoBlob(word+'_'+variant,file);
+    if(!state.fileIndex[word])state.fileIndex[word]={};
+    state.fileIndex[word][variant]={signName:word,variant};
+    done++;
+    const pct=Math.round((done/total)*100);
+    bar.style.width=pct+'%';lbl.textContent=`Importing… ${done} / ${total}`;
+    if(done%20===0)await new Promise(r=>setTimeout(r,0));
+  }
+  prog.style.display='none';
+  state.allWords=Object.keys(state.fileIndex).sort();
+  buildPhraseIndex();
+  s.textContent=`✓ ${state.allWords.length} signs (${done} videos imported)`;s.className='folder-status ok';
+  document.getElementById('library-actions').style.display='flex';
+  document.getElementById('copy-all-btn').disabled=false;
+  document.getElementById('video-folder-input').value='';
+  document.getElementById('video-files-input').value='';
+  renderVocabBrowser();updatePhonStats();updateStorageInfo();
+  const txt=document.getElementById('input-text').value.trim();if(txt)translate();
+}
+async function loadVideoIndex(){
+  const keys=await getAllVideoKeys();if(!keys.length)return;
+  state.fileIndex={};
+  for(const key of keys){
+    const parts=key.split('_');
+    const variant=parts[parts.length-1];
+    const signName=parts.slice(0,-1).join('_');
+    if(!state.fileIndex[signName])state.fileIndex[signName]={};
+    state.fileIndex[signName][variant]={signName,variant};
+  }
+  state.allWords=Object.keys(state.fileIndex).sort();
+  buildPhraseIndex();
+  const s=document.getElementById('folder-status');
+  s.textContent=`✓ ${state.allWords.length} signs cached on device`;s.className='folder-status ok';
+  document.getElementById('library-actions').style.display='flex';
+  document.getElementById('copy-all-btn').disabled=false;
+  renderVocabBrowser();updatePhonStats();updateStorageInfo();
+}
+async function clearVideoLibrary(){
+  if(!confirm('Remove all cached videos from this device? You will need to re-import them.'))return;
+  await clearVideoDB();
+  state.fileIndex={};state.allWords=[];state.tokens=[];buildPhraseIndex();
+  document.getElementById('folder-status').textContent='No videos loaded';
+  document.getElementById('folder-status').className='folder-status';
+  document.getElementById('storage-info').textContent='';
+  document.getElementById('library-actions').style.display='none';
+  document.getElementById('copy-all-btn').disabled=true;
+  ['tokens-section','player-section','diff-section'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  renderVocabBrowser();updatePhonStats();flashStatus('lib-clear-status','Library cleared',2500);
+}
+async function updateStorageInfo(){
+  const el=document.getElementById('storage-info');if(!el)return;
+  const keys=await getAllVideoKeys();
+  if(!keys.length){el.textContent='';return;}
+  let sz='';
+  if(navigator.storage&&navigator.storage.estimate){
+    try{const est=await navigator.storage.estimate();if(est.usage)sz=` · ~${(est.usage/1048576).toFixed(0)} MB on device`;}catch(e){}
+  }
+  el.textContent=`${keys.length} videos cached${sz} — add more anytime`;
+}
+
+// ═══ FILE PARSING ═══
+function parseFilename(name){
+  const base=name.replace(/\.mp4$/i,''),parts=base.split('_'),last=parts[parts.length-1].toUpperCase();
+  if(parts.length>1&&new Set(['N','S','A','B','C','D']).has(last))return{word:parts.slice(0,-1).join('_').toUpperCase(),variant:last};
+  return{word:base.toUpperCase(),variant:'DEFAULT'};
+}
+function getHandle(sign,dialect){
+  const v=state.fileIndex[sign];if(!v)return null;
+  const pref=dialect==='north'?'N':'S',other=dialect==='north'?'S':'N';
+  for(const k of[pref,'A',other,'DEFAULT','B','C','D'])if(v[k])return v[k];return null;
+}
+
+// ═══ PHRASE INDEX ═══
+function buildPhraseIndex(){
+  state.phraseIndex={};
+  state.allWords.forEach(sign=>{
+    if(!sign.includes('_'))return;
+    const phrase=sign.replace(/_/g,' ').toLowerCase();
+    state.phraseIndex[phrase]=sign;
+  });
+  state.phraseList=Object.keys(state.phraseIndex).sort((a,b)=>b.split(' ').length-a.split(' ').length);
+}
+
+// ═══ LEMMATIZATION ═══
+function getCandidates(word){
+  const w=word.toLowerCase(),seen=new Set(),res=[];
+  const push=v=>{if(v&&!seen.has(v)){seen.add(v);res.push(v);}};
+  if(w in CONTRACTIONS){const m=CONTRACTIONS[w];if(m)push(m);return res;}
+  push(w);
+  if(IRREGULAR[w])push(IRREGULAR[w]);
+  // -ing forms (running→run, making→make, hitting→hit)
+  if(w.endsWith('ing')&&w.length>5){
+    const s=w.slice(0,-3);push(s);push(s+'e');
+    if(s.length>=2&&s[s.length-1]===s[s.length-2])push(s.slice(0,-1));
+  }
+  // -ed forms (walked→walk, loved→love, stopped→stop, tried→try)
+  if(w.endsWith('ed')&&w.length>3){
+    if(w.endsWith('ied'))push(w.slice(0,-3)+'y');
+    const s2=w.slice(0,-2),s1=w.slice(0,-1);
+    push(s2);push(s1);
+    if(s2.length>=2&&s2[s2.length-1]===s2[s2.length-2])push(s2.slice(0,-1));
+  }
+  // plural/3rd-person -ies (tries→try, carries→carry)
+  if(w.endsWith('ies')&&w.length>4)push(w.slice(0,-3)+'y');
+  // -es (goes→go, watches→watch, boxes→box)
+  if(w.endsWith('es')&&w.length>3){push(w.slice(0,-2));push(w.slice(0,-1));}
+  // plain -s (walks→walk, cats→cat)
+  if(w.endsWith('s')&&w.length>2&&!w.endsWith('ss'))push(w.slice(0,-1));
+  // try adding -e (love→love already, but handles some edge cases)
+  push(w+'e');
+  // -er/-est comparative (happier→happy, biggest→big)
+  if(w.endsWith('er')&&w.length>3){
+    const s=w.slice(0,-2);push(s);push(s+'e');
+    if(s.length>=2&&s[s.length-1]===s[s.length-2])push(s.slice(0,-1));
+  }
+  if(w.endsWith('est')&&w.length>4){
+    const s=w.slice(0,-3);push(s);push(s+'e');
+    if(s.length>=2&&s[s.length-1]===s[s.length-2])push(s.slice(0,-1));
+  }
+  // -ly adverbs (quickly→quick, happily→happy, easily→easy)
+  if(w.endsWith('ly')&&w.length>4){
+    const s=w.slice(0,-2);push(s);
+    if(s.endsWith('i'))push(s.slice(0,-1)+'y'); // happily→happy
+    if(s.endsWith('l'))push(s.slice(0,-1)); // fully→full
+  }
+  // -ness (happiness→happy, sadness→sad)
+  if(w.endsWith('ness')&&w.length>5){
+    const s=w.slice(0,-4);push(s);
+    if(s.endsWith('i'))push(s.slice(0,-1)+'y');
+  }
+  // -tion/-sion (communication→communicate, permission→permit)
+  if(w.endsWith('tion')&&w.length>6){push(w.slice(0,-4));push(w.slice(0,-4)+'te');}
+  if(w.endsWith('sion')&&w.length>6){push(w.slice(0,-4));push(w.slice(0,-4)+'se');}
+  // -ment (employment→employ, movement→move)
+  if(w.endsWith('ment')&&w.length>6){push(w.slice(0,-4));push(w.slice(0,-4)+'e');}
+  // -able/-ible (comfortable→comfort, possible→possible already)
+  if(w.endsWith('able')&&w.length>6)push(w.slice(0,-4));
+  if(w.endsWith('ible')&&w.length>6)push(w.slice(0,-4));
+  // -ful (helpful→help, beautiful→beauty→beautiful)
+  if(w.endsWith('ful')&&w.length>5)push(w.slice(0,-3));
+  // -less (helpless→help, hopeless→hope)
+  if(w.endsWith('less')&&w.length>6)push(w.slice(0,-4));
+  return res;
+}
+
+// ═══ COMPOUND DETECTION ═══
+function applyCompounds(words){
+  const result=[];let i=0;
+  while(i<words.length){
+    let matched=false;
+    for(const phrase of state.phraseList){
+      const pw=phrase.split(' '),len=pw.length;
+      if(i+len>words.length)continue;
+      if(words.slice(i,i+len).join(' ')===phrase){
+        result.push({word:phrase,signName:state.phraseIndex[phrase],isCompound:true});
+        i+=len;matched=true;break;
+      }
+    }
+    if(!matched){result.push({word:words[i],signName:null,isCompound:false});i++;}
+  }
+  return result;
+}
+
+// ═══ NUMBER DETECTION ═══
+function preProcessNumbers(text){
+  if(!state.settings.numbers)return text;
+  // Replace digit sequences
+  text=text.replace(/\b(\d+)\b/g,(m,d)=>{const n=parseInt(d);return isNaN(n)?m:numToSigns(n).join(' ');});
+  return text;
+}
+
+// ═══ TOKEN RESOLUTION ═══
+function isProperNoun(word){
+  // Proper noun: starts with uppercase, not beginning of sentence
+  // We detect it from the original input — words that are capitalized mid-sentence
+  return /^[A-Z][a-z]/.test(word);
+}
+
+function resolveToken(word,signNameOverride,originalWord){
+  const signName=signNameOverride;
+  if(signName){
+    return{word,signName,handle:getHandle(signName,state.dialect),isCompound:true,confidence:'exact'};
+  }
+  const lower=word.toLowerCase();
+  const mappings=state.profiles[state.currentProfile]||{};
+
+  // 1. Custom profile mapping (highest priority)
+  if(mappings[lower]){
+    const sn=mappings[lower].toUpperCase();
+    return{word,signName:sn,handle:getHandle(sn,state.dialect),confidence:'mapped'};
+  }
+
+  // 2. User-defined synonym
+  if(state.userSynonyms[lower]){
+    const sn=state.userSynonyms[lower].toUpperCase();
+    if(state.fileIndex[sn])return{word,signName:sn,handle:getHandle(sn,state.dialect),confidence:'synonym'};
+  }
+
+  // 3. Exact match in video library
+  if(state.fileIndex[lower.toUpperCase()])
+    return{word,signName:lower.toUpperCase(),handle:getHandle(lower.toUpperCase(),state.dialect),confidence:'exact'};
+
+  // 4. Lemmatized candidates
+  const cands=getCandidates(lower);
+  for(const c of cands){
+    const up=c.toUpperCase();
+    if(state.fileIndex[up])return{word,signName:up,handle:getHandle(up,state.dialect),confidence:c===lower?'exact':'lemma'};
+  }
+
+  // 5. Built-in synonym
+  if(BUILTIN_SYNONYMS[lower]){
+    const sn=BUILTIN_SYNONYMS[lower];
+    if(state.fileIndex[sn])return{word,signName:sn,handle:getHandle(sn,state.dialect),confidence:'synonym'};
+  }
+  // Also try synonyms for lemmatized forms
+  for(const c of cands){
+    if(BUILTIN_SYNONYMS[c]){
+      const sn=BUILTIN_SYNONYMS[c];
+      if(state.fileIndex[sn])return{word,signName:sn,handle:getHandle(sn,state.dialect),confidence:'synonym'};
+    }
+  }
+
+  // 6. Proper noun → fingerspell automatically
+  if(originalWord&&isProperNoun(originalWord)){
+    return{word,signName:lower.toUpperCase(),handle:null,isProperNoun:true,confidence:'proper'};
+  }
+
+  // 7. No match
+  return{word,signName:lower.toUpperCase(),handle:null,confidence:'missing'};
+}
+
+// ═══ FINGERSPELLING ═══
+function getFingerspellTokens(word){
+  return word.toUpperCase().split('').map(letter=>{
+    if(!/[A-Z]/.test(letter))return null;
+    const h=getHandle(letter,state.dialect);
+    return{word:letter,signName:letter,handle:h,isFingerspell:true};
+  }).filter(Boolean);
+}
+
+// ═══ TSL GRAMMAR ENGINE ═══
+function tokenizeRaw(text){
+  return(text.match(/[a-zA-Z]+(?:'[a-zA-Z]+)?/g)||[]).map(w=>w.toLowerCase());
+}
+function processInput(text,grammarOn){
+  text=preProcessNumbers(text);
+  const raw=tokenizeRaw(text);
+  // Expand contractions
+  const expanded=[];
+  for(const t of raw){if(t in CONTRACTIONS){const m=CONTRACTIONS[t];if(m)expanded.push(m);}else expanded.push(t);}
+  // Drop function words
+  const filtered=expanded.filter(w=>!DROP_WORDS.has(w));
+  if(!grammarOn)return{original:filtered,reordered:filtered};
+  // Classify
+  const time=[],content=[],neg=[],wh=[];
+  for(const w of filtered){
+    const cat=state.lexicalCategories[w];
+    if(TIME_WORDS.has(w)||cat==='TIME')time.push(w);
+    else if(NEG_WORDS.has(w)||cat==='NEGATION')neg.push(w);
+    else if(WH_WORDS.has(w)||cat==='WH')wh.push(w);
+    else content.push(w);
+  }
+  return{original:filtered,reordered:[...time,...content,...neg,...wh]};
+}
+
+// ═══ TRANSLATE ═══
+let autoTransTimer=null;
+function translate(){
+  const text=document.getElementById('input-text').value.trim();if(!text)return;
+  addToHistory(text);
+  state.grammarEnabled=document.getElementById('grammar-toggle').checked;
+  const{original,reordered}=processInput(text,state.grammarEnabled);
+  renderDiff(original,reordered);
+  // Compound detection on reordered words
+  const compoundTokens=applyCompounds(reordered);
+  // Resolve each token
+  // Map raw words → original case (for proper noun detection)
+  const rawText=document.getElementById('input-text').value;
+  const rawWords=rawText.match(/[A-Za-z]+(?:'[A-Za-z]+)?/g)||[];
+  const origCaseMap={};
+  rawWords.forEach(w=>{ origCaseMap[w.toLowerCase()]=w; });
+
+  let resolved=compoundTokens.map(ct=>{
+    if(ct.isCompound)return resolveToken(ct.word,ct.signName,null);
+    const orig=origCaseMap[ct.word.toLowerCase()]||ct.word;
+    return resolveToken(ct.word,null,orig);
+  });
+  // Fingerspelling fallback — also covers proper nouns
+  if(state.settings.fingerspell){
+    const expanded=[];
+    for(const t of resolved){
+      if(!t.handle&&!t.isCompound){
+        const fs=getFingerspellTokens(t.word);
+        if(fs.some(f=>f.handle)){
+          // Mark fingerspell tokens with confidence
+          expanded.push(...fs.map(f=>({...f,confidence:t.isProperNoun?'proper':'fingerspell'})));
+        }else expanded.push(t);
+      }else expanded.push(t);
+    }
+    resolved=expanded;
+  }
+  state.tokens=resolved;
+  // Track frequency
+  resolved.forEach(t=>{if(t.handle){state.signFreq[t.signName]=(state.signFreq[t.signName]||0)+1;}});
+  saveFreq();
+  stopPlayback();state.currentIdx=-1;closeOverride();
+  renderTokens();showEl('player-section');showEl('tokens-section');updatePlayerUI();
+  setTimeout(()=>{const p=document.getElementById('player-section');if(p&&p.style.display!=='none')p.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('input-text').addEventListener('input',()=>{
+    clearTimeout(autoTransTimer);autoTransTimer=setTimeout(translate,600);
+    updateAutocomplete(document.getElementById('input-text').value);
+  });
+});
+
+// ═══ AUTOCOMPLETE ═══
+function updateAutocomplete(text){
+  const row=document.getElementById('autocomplete-row');
+  if(!state.allWords.length){row.style.display='none';return;}
+  const words=text.trimEnd().split(/\s+/);
+  const last=(words[words.length-1]||'').toLowerCase();
+  if(last.length<2){row.style.display='none';return;}
+  const suggestions=[];
+  // Compound phrases starting with last word
+  state.phraseList.filter(p=>p.startsWith(last)&&p.includes(' ')).slice(0,4).forEach(p=>{
+    suggestions.push({label:state.phraseIndex[p].replace(/_/g,' '),value:p,compound:true});
+  });
+  // Single signs
+  state.allWords.filter(w=>w.toLowerCase().startsWith(last)&&!suggestions.find(s=>s.label===w)).slice(0,5).forEach(w=>{
+    suggestions.push({label:w,value:w.toLowerCase(),compound:false});
+  });
+  if(!suggestions.length){row.style.display='none';return;}
+  row.innerHTML=suggestions.map(s=>`<button class="ac-chip${s.compound?' compound':''}" onclick="insertAutocomplete('${esc(s.value)}')">${esc(s.label)}</button>`).join('');
+  row.style.display='flex';
+}
+function insertAutocomplete(value){
+  const inp=document.getElementById('input-text');
+  const words=inp.value.trimEnd().split(/\s+/);
+  words[words.length-1]=value.replace(/_/g,' ');
+  inp.value=words.join(' ')+' ';
+  document.getElementById('autocomplete-row').style.display='none';
+  translate();inp.focus();
+}
+
+// ═══ RENDER DIFF ═══
+function renderDiff(original,reordered){
+  const diff=document.getElementById('diff-section');
+  if(JSON.stringify(original)===JSON.stringify(reordered)||!state.grammarEnabled){diff.style.display='none';return;}
+  diff.style.display='block';
+  document.getElementById('diff-en').innerHTML=original.map(w=>`<span class="dchip">${esc(w)}</span>`).join('');
+  document.getElementById('diff-tsl').innerHTML=reordered.map((w,i)=>`<span class="dchip${original[i]!==w?' moved':''}">${esc(w)}</span>`).join('');
+}
+
+// ═══ RENDER TOKENS ═══
+function renderTokens(){
+  const found=state.tokens.filter(t=>t.handle).length,miss=state.tokens.length-found;
+  const bf=document.getElementById('badge-found'),bm=document.getElementById('badge-missing');
+  if(bf){bf.textContent=found+'✓';bf.style.display=found?'':'none';}
+  if(bm){bm.textContent=miss+'?';bm.style.display=miss?'':'none';}
+  const missList=state.tokens.filter(t=>!t.handle&&!t.isFingerspell).map(t=>t.word);
+  const hint=document.getElementById('missing-hint'),mw=document.getElementById('missing-words');
+  if(hint&&mw){if(missList.length){mw.textContent=missList.join(', ');hint.style.display='block';}else hint.style.display='none';}
+  updateMissingReport();
+  updateSynonymSuggestions();
+  document.getElementById('tokens-list').innerHTML=state.tokens.map((t,i)=>{
+    const cls=t.handle?'found':'missing';
+    const extra=(t.isCompound?' compound':'')+(t.isFingerspell?' fingerspell':'');
+    const cat=state.lexicalCategories[t.word];
+    const catBadge=cat?`<span class="pill-cat cat-${esc(cat)}">${esc(CAT_ABBR[cat]||cat)}</span>`:'';
+    // Dialect badge
+    let dialectBadge='';
+    if(t.handle){
+      const v=t.handle.variant;
+      if(v==='N')dialectBadge=`<span class="pill-dialect" title="North (Taipei) variant">N</span>`;
+      else if(v==='S')dialectBadge=`<span class="pill-dialect south" title="South (Tainan) variant">S</span>`;
+      else if(v==='A')dialectBadge=`<span class="pill-dialect default" title="Shared variant">A</span>`;
+      else if(v==='DEFAULT')dialectBadge='';
+      else dialectBadge=`<span class="pill-dialect default" title="Variant: ${esc(v)}">${esc(v)}</span>`;
+    }
+    // Confidence badge
+    const confMap={exact:['conf-exact','✓'],mapped:['conf-mapped','M'],lemma:['conf-lemma','~'],
+      synonym:['conf-synonym','≈'],fingerspell:['conf-fingerspell','FS'],proper:['conf-proper','PN'],missing:['','']};
+    const confData=confMap[t.confidence]||['',''];
+    const confTitles={exact:'Exact match',mapped:'Custom mapping',lemma:'Lemmatized match',
+      synonym:'Synonym match',fingerspell:'Fingerspelled',proper:'Proper noun — fingerspelled',missing:'No match'};
+    const confBadge=confData[1]?`<span class="pill-conf ${confData[0]}" title="${confTitles[t.confidence]||''}">${confData[1]}</span>`:'';
+    return`<button class="pill ${cls}${extra}" id="pill-${i}" onclick="jumpTo(${i})" title="${esc(t.word)} → ${esc(t.signName)}" onmouseenter="showThumb(event,${i})" onmouseleave="hideThumb()">
+      <span class="pill-idx">${i+1}</span>${esc(t.signName)}${dialectBadge}${confBadge}${catBadge}
+      <span class="pill-edit" onclick="showPillOverride(event,${i})" title="Override">✎</span>
+    </button>`;
+  }).join('');
+}
+
+// ═══ MISSING SIGN REPORT ═══
+function updateMissingReport(){
+  // Accumulate all signs that have no video across all translations
+  state.tokens.filter(t=>!t.handle&&!t.isFingerspell).forEach(t=>state.missingSignsReport.add(t.signName));
+  const report=document.getElementById('missing-report');
+  const countEl=document.getElementById('missing-report-count');
+  const listEl=document.getElementById('missing-report-list');
+  if(!report||!countEl||!listEl)return;
+  const missing=[...state.missingSignsReport].sort();
+  if(!missing.length){report.style.display='none';return;}
+  report.style.display='block';
+  countEl.textContent=missing.length;
+  listEl.innerHTML=missing.map(s=>`<span class="missing-chip" title="No video for ${esc(s)}">${esc(s)}</span>`).join('');
+}
+function clearMissingReport(){
+  state.missingSignsReport.clear();
+  const report=document.getElementById('missing-report');
+  if(report)report.style.display='none';
+}
+function exportMissingReport(){
+  if(!state.missingSignsReport.size)return;
+  const text=[...state.missingSignsReport].sort().join('\n');
+  downloadFile('tsl-missing-signs.txt',text,'text/plain');
+}
+
+// ═══ THUMBNAIL ═══
+const _thumbVid=document.createElement('video');_thumbVid.muted=true;_thumbVid.preload='metadata';
+const _thumbCanvas=document.getElementById('thumb-canvas');
+const _thumbCtx=_thumbCanvas.getContext('2d');
+let _thumbTimer=null;
+
+async function showThumb(event,idx){
+  clearTimeout(_thumbTimer);
+  _thumbTimer=setTimeout(async()=>{
+    const t=state.tokens[idx];if(!t||!t.handle)return;
+    if(!state.thumbCache[t.signName]){
+      try{const blob=await getVideoBlob(t.handle.signName,t.handle.variant);if(!blob)return;const url=URL.createObjectURL(blob);
+        await new Promise(res=>{_thumbVid.src=url;_thumbVid.currentTime=0.15;_thumbVid.onseeked=()=>{_thumbCtx.drawImage(_thumbVid,0,0,160,90);state.thumbCache[t.signName]=_thumbCanvas.toDataURL();URL.revokeObjectURL(url);res();};_thumbVid.load();});
+      }catch(e){return;}
+    }
+    const tip=document.getElementById('thumb-tip');
+    _thumbCanvas.getContext('2d').drawImage(Object.assign(new Image(),{src:state.thumbCache[t.signName]}),0,0,160,90);
+    document.getElementById('thumb-tip-label').textContent=t.signName;
+    tip.style.display='block';tip.style.left=(event.pageX+10)+'px';tip.style.top=(event.pageY-100)+'px';
+  },200);
+}
+function hideThumb(){clearTimeout(_thumbTimer);document.getElementById('thumb-tip').style.display='none';}
+
+// ═══ OVERRIDE ═══
+function showPillOverride(event,idx){
+  event.stopPropagation();state.overrideIdx=idx;
+  const t=state.tokens[idx];
+  document.getElementById('override-word').textContent=t.word;
+  document.getElementById('override-input').value=t.signName;
+  document.getElementById('override-panel').style.display='block';
+  document.getElementById('override-input').focus();document.getElementById('override-input').select();
+}
+function applyOverride(){
+  const idx=state.overrideIdx,inp=document.getElementById('override-input');if(idx<0||!inp)return;
+  const sn=inp.value.trim().toUpperCase();if(!sn){closeOverride();return;}
+  state.tokens[idx]={...state.tokens[idx],signName:sn,handle:getHandle(sn,state.dialect)};
+  closeOverride();renderTokens();highlightPill(state.currentIdx);
+}
+function closeOverride(){state.overrideIdx=-1;document.getElementById('override-panel').style.display='none';}
+
+// ═══ PLAYBACK ═══
+const videoEl=document.getElementById('video-el');
+const signOvl=document.getElementById('sign-overlay');
+const phOvl=document.getElementById('ph-overlay');
+const phName=document.getElementById('ph-name');
+const presVideo=document.getElementById('pres-video');
+
+videoEl.addEventListener('ended',()=>{
+  if(!state.isPlaying)return;
+  state.repeatDone++;
+  if(state.repeatDone<state.repeatCount){videoEl.currentTime=0;videoEl.play().catch(()=>{});return;}
+  state.repeatDone=0;
+  if(!state.autoAdvance||state.loopEnabled)return;
+  if(state.signGap>0){state.gapTimer=setTimeout(()=>advanceTo(state.currentIdx+1),state.signGap);}
+  else advanceTo(state.currentIdx+1);
+});
+videoEl.addEventListener('error',()=>{if(state.isPlaying&&state.autoAdvance)state.gapTimer=setTimeout(()=>advanceTo(state.currentIdx+1),900);});
+videoEl.addEventListener('timeupdate',()=>{
+  const pct=(videoEl.duration&&!isNaN(videoEl.duration))?(videoEl.currentTime/videoEl.duration)*100:0;
+  const f=document.getElementById('vp-fill');if(f)f.style.width=pct+'%';
+  const pf=document.getElementById('pres-fill');if(pf)pf.style.width=pct+'%';
+});
+document.getElementById('video-wrap').addEventListener('dblclick',toggleFullscreen);
+document.addEventListener('fullscreenchange',()=>{const b=document.getElementById('btn-fs');if(b)b.innerHTML=document.fullscreenElement?'✕':'⛶';});
+
+async function jumpTo(idx){
+  stopPlayback();state.isPlaying=false;videoEl.loop=state.loopEnabled;
+  await playToken(idx);updatePlayerUI();
+}
+async function advanceTo(idx){
+  if(idx>=state.tokens.length){state.isPlaying=false;updatePlayerUI();return;}
+  await playToken(idx);
+}
+async function playToken(idx){
+  if(idx<0||idx>=state.tokens.length)return;
+  state.currentIdx=idx;state.repeatDone=0;highlightPill(idx);updateCounter();updateSignInfo();
+  const token=state.tokens[idx];
+  clearTimeout(state.skipTimer);clearTimeout(state.gapTimer);
+  const pFill=document.getElementById('vp-fill');if(pFill)pFill.style.width='0%';
+  const pBar=document.getElementById('video-progress');
+  phOvl.classList.remove('show');signOvl.classList.remove('show');
+  if(token.handle){
+    if(pBar)pBar.style.opacity='1';
+    let url;
+    if(state.preload.idx===idx&&state.preload.url){
+      url=state.preload.url;state.preload={idx:-1,url:null};
+      if(state.currentObjectUrl)URL.revokeObjectURL(state.currentObjectUrl);
+    }else{
+      if(state.preload.url){URL.revokeObjectURL(state.preload.url);state.preload={idx:-1,url:null};}
+      if(state.currentObjectUrl)URL.revokeObjectURL(state.currentObjectUrl);
+      const blob=await getVideoBlob(token.handle.signName,token.handle.variant);
+      if(!blob){if(state.isPlaying&&state.autoAdvance)state.skipTimer=setTimeout(()=>advanceTo(idx+1),900);return;}
+      url=URL.createObjectURL(blob);
+    }
+    state.currentObjectUrl=url;videoEl.src=url;videoEl.playbackRate=state.speed;
+    signOvl.textContent=token.signName;signOvl.classList.add('show');
+    if(state.presenterMode){presVideo.src=url;presVideo.playbackRate=state.speed;document.getElementById('pres-sign').textContent=token.signName;document.getElementById('pres-counter').textContent=`${idx+1} / ${state.tokens.length}`;}
+    await videoEl.play().catch(()=>{});if(state.presenterMode)presVideo.play().catch(()=>{});
+    preloadNext(idx+1);
+  }else{
+    if(pBar)pBar.style.opacity='0';videoEl.src='';
+    if(state.presenterMode){presVideo.src='';document.getElementById('pres-sign').textContent=token.signName+'?';}
+    phName.textContent=token.signName;phOvl.classList.add('show');
+    if(state.autoAdvance)state.skipTimer=setTimeout(()=>{if(state.isPlaying)advanceTo(idx+1);},900);
+  }
+}
+async function preloadNext(idx){
+  if(idx>=state.tokens.length||state.preload.idx===idx)return;
+  if(state.preload.url){URL.revokeObjectURL(state.preload.url);state.preload={idx:-1,url:null};}
+  const t=state.tokens[idx];if(!t||!t.handle)return;
+  try{const blob=await getVideoBlob(t.handle.signName,t.handle.variant);if(blob)state.preload={idx,url:URL.createObjectURL(blob)};}catch(e){}
+}
+function replaySign(){if(state.currentIdx>=0){state.repeatDone=0;videoEl.currentTime=0;videoEl.play().catch(()=>{});}}
+function togglePlay(){
+  if(!state.tokens.length)return;
+  if(state.isPlaying){state.isPlaying=false;videoEl.pause();presVideo.pause();clearTimeout(state.skipTimer);clearTimeout(state.gapTimer);updatePlayerUI();}
+  else{state.isPlaying=true;state.repeatDone=0;videoEl.loop=false;
+    const si=(state.currentIdx<0||state.currentIdx>=state.tokens.length-1)?0:state.currentIdx;
+    playToken(state.currentIdx>=state.tokens.length-1?0:si);updatePlayerUI();}
+}
+function prevSign(){jumpTo(Math.max(0,state.currentIdx-1));}
+function nextSign(){jumpTo(Math.min(state.tokens.length-1,state.currentIdx+1));}
+function stopPlayback(){state.isPlaying=false;videoEl.pause();presVideo.pause();clearTimeout(state.skipTimer);clearTimeout(state.gapTimer);}
+function setSpeed(v){state.speed=parseFloat(v);videoEl.playbackRate=state.speed;}
+function toggleFullscreen(){if(!document.fullscreenElement)document.getElementById('video-wrap').requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{});}
+function stepFrame(dir){videoEl.pause();videoEl.currentTime=Math.max(0,Math.min(videoEl.duration||0,videoEl.currentTime+dir/30));}
+
+// Variant comparison
+async function toggleVariant(){
+  const panel=document.getElementById('variant-panel');
+  if(panel.classList.contains('show')){panel.classList.remove('show');return;}
+  if(state.currentIdx<0)return;
+  const t=state.tokens[state.currentIdx];
+  const variants=state.fileIndex[t.signName];if(!variants)return;
+  async function loadVar(id,vkey){
+    if(!variants[vkey])return;
+    const blob=await getVideoBlob(variants[vkey].signName,vkey);if(!blob)return;
+    const url=URL.createObjectURL(blob);
+    const el=document.getElementById(id);el.src=url;el.play().catch(()=>{});
+  }
+  panel.classList.add('show');
+  await Promise.all([loadVar('var-north','N'),loadVar('var-south','S')]);
+}
+
+// ═══ PLAYER UI ═══
+function updatePlayerUI(){
+  const has=state.tokens.length>0;
+  document.getElementById('btn-play').disabled=!has;
+  document.getElementById('btn-prev').disabled=!has||state.currentIdx<=0;
+  document.getElementById('btn-next').disabled=!has||state.currentIdx>=state.tokens.length-1;
+  document.getElementById('btn-repeat').disabled=!has||state.currentIdx<0;
+  document.getElementById('btn-play').innerHTML=state.isPlaying?'&#9646;&#9646;':'&#9654;';
+  updateCounter();
+}
+function updateCounter(){
+  const el=document.getElementById('counter');if(!state.tokens.length){el.textContent='— / —';return;}
+  el.textContent=`${state.currentIdx>=0?state.currentIdx+1:'—'} / ${state.tokens.length}`;
+}
+function highlightPill(idx){
+  document.querySelectorAll('.pill.active').forEach(p=>p.classList.remove('active'));
+  const p=document.getElementById('pill-'+idx);if(p){p.classList.add('active');p.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  document.getElementById('btn-prev').disabled=idx<=0;
+  document.getElementById('btn-next').disabled=idx>=state.tokens.length-1;
+  document.getElementById('btn-repeat').disabled=idx<0;
+  updateCounter();
+}
+function updateSignInfo(){
+  const idx=state.currentIdx;if(idx<0||idx>=state.tokens.length)return;
+  const t=state.tokens[idx];
+  const meta=state.signMeta[t.signName]||{};
+  document.getElementById('si-sign').textContent=t.signName;
+  document.getElementById('si-hs').textContent=meta.handshape||'—';
+  document.getElementById('si-loc').textContent=meta.location||'—';
+  document.getElementById('si-freq').textContent=(state.signFreq[t.signName]||0)+' uses';
+  const note=state.signNotes[t.signName]||'';
+  const nd=document.getElementById('si-note-display');
+  nd.innerHTML=note?`<span>${esc(note)}</span>`:'<div class="si-note-empty">No notes</div>';
+  const ni=document.getElementById('note-input');if(ni)ni.value=note;
+}
+function saveSignNote(){
+  const idx=state.currentIdx;if(idx<0)return;
+  const t=state.tokens[idx],val=document.getElementById('note-input').value;
+  state.signNotes[t.signName]=val;saveNotes();updateSignInfo();
+}
+
+// ═══ LOOP / COPY / GLOSS ═══
+function toggleLoop(){
+  state.loopEnabled=!state.loopEnabled;videoEl.loop=state.loopEnabled;
+  const b=document.getElementById('btn-loop');if(b){b.style.color=state.loopEnabled?'var(--teal)':'';b.style.borderColor=state.loopEnabled?'var(--teal)':'';b.style.background=state.loopEnabled?'var(--teal-bg)':'';}
+}
+function copyGloss(){
+  if(!state.tokens.length)return;
+  navigator.clipboard.writeText(state.tokens.map(t=>t.signName).join(' ')).catch(()=>{});
+  flashStatus('bulk-status','Gloss copied',2000);
+}
+function exportGloss(){
+  if(!state.tokens.length)return;
+  const text=state.tokens.map((t,i)=>`${i+1}. ${t.signName}`).join('\n');
+  downloadFile('tsl-gloss.txt',text,'text/plain');
+}
+
+// ═══ PRESENTER MODE ═══
+function togglePresenter(){
+  state.presenterMode=!state.presenterMode;
+  document.getElementById('presenter-overlay').classList.toggle('show',state.presenterMode);
+  if(state.presenterMode&&state.currentIdx>=0){
+    const t=state.tokens[state.currentIdx];
+    presVideo.src=videoEl.src;presVideo.currentTime=videoEl.currentTime;
+    document.getElementById('pres-sign').textContent=t?t.signName:'—';
+    document.getElementById('pres-counter').textContent=`${state.currentIdx+1} / ${state.tokens.length}`;
+  }
+}
+
+// ═══ DIALECT ═══
+function setDialect(d){
+  state.dialect=d;
+  document.getElementById('btn-north').classList.toggle('active',d==='north');
+  document.getElementById('btn-south').classList.toggle('active',d==='south');
+  try{localStorage.setItem('tsl-dialect',d);}catch(e){}
+  if(state.tokens.length){state.tokens=state.tokens.map(t=>({...t,handle:getHandle(t.signName,d)}));renderTokens();highlightPill(state.currentIdx);}
+}
+
+// ═══ MAPPING PROFILES ═══
+function renderProfileSelect(){
+  const sel=document.getElementById('profile-select');if(!sel)return;
+  sel.innerHTML=Object.keys(state.profiles).map(p=>`<option value="${esc(p)}"${p===state.currentProfile?' selected':''}>${esc(p)}</option>`).join('');
+}
+function switchProfile(name){
+  if(!state.profiles[name])return;
+  state.currentProfile=name;state.customMappings=state.profiles[name];
+  renderMappings();saveProfiles();
+}
+function addProfile(){
+  const inp=document.getElementById('new-profile-name'),name=inp.value.trim();
+  if(!name||state.profiles[name])return;
+  state.profiles[name]={};inp.value='';saveProfiles();renderProfileSelect();switchProfile(name);
+}
+function deleteProfile(){
+  if(Object.keys(state.profiles).length<=1)return;
+  delete state.profiles[state.currentProfile];
+  state.currentProfile=Object.keys(state.profiles)[0];
+  state.customMappings=state.profiles[state.currentProfile];
+  saveProfiles();renderProfileSelect();renderMappings();
+}
+function saveProfiles(){try{localStorage.setItem('tsl-profiles',JSON.stringify(state.profiles));}catch(e){}}
+
+// ═══ CUSTOM MAPPINGS ═══
+function addMapping(){
+  const f=document.getElementById('map-from').value.trim().toLowerCase(),t=document.getElementById('map-to').value.trim().toUpperCase();
+  if(!f||!t)return;
+  if(!state.profiles[state.currentProfile])state.profiles[state.currentProfile]={};
+  state.profiles[state.currentProfile][f]=t;state.customMappings=state.profiles[state.currentProfile];
+  saveProfiles();document.getElementById('map-from').value='';document.getElementById('map-to').value='';renderMappings();
+  const txt=document.getElementById('input-text').value.trim();if(txt&&state.tokens.length)translate();
+}
+function removeMapping(word){
+  delete state.profiles[state.currentProfile][word];saveProfiles();renderMappings();
+}
+function renderMappings(){
+  const list=document.getElementById('mappings-list'),entries=Object.entries(state.customMappings||{});
+  list.innerHTML=entries.length?entries.map(([f,t])=>`<div class="mitem"><span class="mfrom">${esc(f)}</span><span style="color:var(--dimmer)">→</span><span class="mto">${esc(t)}</span><button class="mdel" onclick="removeMapping('${esc(f)}')">✕</button></div>`).join(''):'<div style="font-size:11px;color:var(--dimmer);padding:8px 0">No mappings in this profile.</div>';
+}
+function saveMappingsFile(){downloadFile('tsl-mappings.json',JSON.stringify(state.profiles[state.currentProfile],null,2),'application/json');flashStatus('map-file-status','✓ Saved');}
+function loadMappingsFile(inp){const f=inp.files[0];if(!f)return;readJson(f,d=>{Object.assign(state.profiles[state.currentProfile],d);state.customMappings=state.profiles[state.currentProfile];saveProfiles();renderMappings();flashStatus('map-file-status',`✓ ${Object.keys(d).length} loaded`);},()=>flashStatus('map-file-status','✗ Invalid JSON'));inp.value='';}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('map-from').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('map-to').focus();});
+  document.getElementById('map-to').addEventListener('keydown',e=>{if(e.key==='Enter')addMapping();});
+  const sf=document.getElementById('syn-from'),st=document.getElementById('syn-to');
+  if(sf)sf.addEventListener('keydown',e=>{if(e.key==='Enter'&&st)st.focus();});
+  if(st)st.addEventListener('keydown',e=>{if(e.key==='Enter')addUserSynonym();});
+});
+
+// ═══ BULK IMPORT/EXPORT ═══
+function importBulkMappings(){
+  const raw=document.getElementById('bulk-import-text').value;let a=0,sk=0;
+  for(const line of raw.split('\n')){const t=line.trim();if(!t||t.startsWith('#'))continue;
+    let from,to;const m=t.match(/^(.+?)\s*[-=]?[>→]\s*(.+)$/);
+    if(m){from=m[1].trim().toLowerCase();to=m[2].trim().toUpperCase();}else{const p=t.split(/\t+|\s{2,}/);if(p.length>=2){from=p[0].trim().toLowerCase();to=p[p.length-1].trim().toUpperCase();}}
+    if(from&&to){if(!state.profiles[state.currentProfile])state.profiles[state.currentProfile]={};state.profiles[state.currentProfile][from]=to;a++;}else sk++;
+  }
+  state.customMappings=state.profiles[state.currentProfile];saveProfiles();renderMappings();
+  const txt=document.getElementById('input-text').value.trim();if(txt&&state.tokens.length)translate();
+  flashStatus('bulk-status',`Imported ${a}${sk?` (${sk} skipped)`:''}`,3000);
+}
+function exportMappings(){const e=Object.entries(state.customMappings||{});if(!e.length)return;document.getElementById('bulk-import-text').value=e.map(([f,t])=>`${f} → ${t}`).join('\n');}
+function saveBulkFile(){const t=document.getElementById('bulk-import-text').value;if(!t.trim())return;downloadFile('tsl-mappings.txt',t,'text/plain');}
+function exportMissing(){
+  const missing=[...new Set(state.tokens.filter(t=>!t.handle&&!t.isFingerspell).map(t=>t.word))];
+  if(!missing.length){flashStatus('bulk-status','No missing signs in current translation',2000);return;}
+  downloadFile('tsl-missing-signs.txt',missing.join('\n'),'text/plain');
+}
+
+// ═══ SYNONYM SUGGESTIONS ═══
+function updateSynonymSuggestions(){
+  const missingTokens=state.tokens.filter(t=>!t.handle&&!t.isFingerspell&&!t.isProperNoun);
+  const panel=document.getElementById('synonym-section');
+  const chips=document.getElementById('syn-chips');
+  if(!panel||!chips)return;
+  if(!missingTokens.length){panel.style.display='none';return;}
+  const suggestions=[];
+  missingTokens.forEach(t=>{
+    const lower=t.word.toLowerCase();
+    // Check BUILTIN_SYNONYMS and user synonyms for alternatives
+    const allSyns={...BUILTIN_SYNONYMS,...state.userSynonyms};
+    if(allSyns[lower]&&state.fileIndex[allSyns[lower]]){
+      suggestions.push({word:lower,sign:allSyns[lower],source:'synonym'});
+    }
+    // Also check lemmatized forms of the word for synonyms
+    for(const c of getCandidates(lower)){
+      if(allSyns[c]&&state.fileIndex[allSyns[c]]&&!suggestions.find(s=>s.word===lower&&s.sign===allSyns[c])){
+        suggestions.push({word:lower,sign:allSyns[c],source:'synonym'});
+      }
+    }
+  });
+  if(!suggestions.length){panel.style.display='none';return;}
+  panel.style.display='block';
+  chips.innerHTML=suggestions.map(s=>`<button class="syn-chip" onclick="applySynonymSwap('${esc(s.word)}','${esc(s.sign)}')" title="Replace '${esc(s.word)}' with ${esc(s.sign)}">${esc(s.word)} → ${esc(s.sign)}</button>`).join('');
+}
+function applySynonymSwap(word,sign){
+  // Apply synonym to all matching missing tokens
+  state.tokens=state.tokens.map(t=>{
+    if(t.word===word&&!t.handle){
+      const h=getHandle(sign,state.dialect);
+      return{...t,signName:sign,handle:h,confidence:'synonym'};
+    }
+    return t;
+  });
+  renderTokens();updateSynonymSuggestions();highlightPill(state.currentIdx);
+}
+
+// ═══ USER SYNONYM MANAGEMENT ═══
+function addUserSynonym(){
+  const f=document.getElementById('syn-from').value.trim().toLowerCase();
+  const t=document.getElementById('syn-to').value.trim().toUpperCase();
+  if(!f||!t)return;
+  state.userSynonyms[f]=t;saveUserSynonyms();renderUserSynList();renderBuiltinSynonyms();
+  document.getElementById('syn-from').value='';document.getElementById('syn-to').value='';
+  flashStatus('syn-status',`✓ Added: ${f} → ${t}`);
+  if(state.tokens.length)translate();
+}
+function removeUserSynonym(word){
+  delete state.userSynonyms[word];saveUserSynonyms();renderUserSynList();
+}
+function renderUserSynList(){
+  const list=document.getElementById('user-syn-list');if(!list)return;
+  const entries=Object.entries(state.userSynonyms);
+  if(!entries.length){list.innerHTML='<div style="font-size:11px;color:var(--dimmer);padding:6px 0">No custom synonyms yet.</div>';return;}
+  list.innerHTML=entries.sort((a,b)=>a[0].localeCompare(b[0])).map(([f,t])=>`<div class="syn-list-item"><span class="syn-word">${esc(f)}</span><span style="color:var(--dimmer)">→</span><span class="syn-sign">${esc(t)}</span><button class="syn-del" onclick="removeUserSynonym('${esc(f)}')">✕</button></div>`).join('');
+}
+function renderBuiltinSynonyms(){
+  const list=document.getElementById('builtin-syn-list');if(!list)return;
+  const q=(document.getElementById('builtin-syn-search').value||'').toLowerCase();
+  const entries=Object.entries(BUILTIN_SYNONYMS).filter(([f,t])=>!q||f.includes(q)||t.toLowerCase().includes(q));
+  if(!entries.length){list.innerHTML='<div style="font-size:11px;color:var(--dimmer);padding:6px 0">No matches.</div>';return;}
+  list.innerHTML=entries.sort((a,b)=>a[0].localeCompare(b[0])).map(([f,t])=>{
+    const overridden=state.userSynonyms[f];
+    return`<div class="syn-list-item" title="${overridden?'Overridden by your custom synonym':'Built-in'}">
+      <span class="syn-word" style="${overridden?'text-decoration:line-through;opacity:.4':''}">${esc(f)}</span>
+      <span style="color:var(--dimmer)">→</span>
+      <span class="syn-sign" style="${overridden?'opacity:.4':''}">${esc(t)}</span>
+      ${overridden?`<span style="font-size:9px;color:var(--amber);margin-left:4px">→${esc(overridden)}</span>`:''}
+      <button class="syn-del" onclick="overrideBuiltinSyn('${esc(f)}','${esc(t)}')" title="Override this synonym" style="font-size:10px;color:var(--teal)">↗</button>
+    </div>`;
+  }).join('');
+}
+function overrideBuiltinSyn(word,currentSign){
+  const inp=document.getElementById('syn-from');
+  if(inp)inp.value=word;
+  const to=document.getElementById('syn-to');
+  if(to)to.value=currentSign;
+  document.getElementById('syn-from').focus();
+}
+function saveUserSynonyms(){try{localStorage.setItem('tsl-user-synonyms',JSON.stringify(state.userSynonyms));}catch(e){}}
+function saveSynFile(){downloadFile('tsl-synonyms.json',JSON.stringify(state.userSynonyms,null,2),'application/json');flashStatus('syn-status','✓ Saved');}
+function loadSynFile(inp){const f=inp.files[0];if(!f)return;readJson(f,d=>{Object.assign(state.userSynonyms,d);saveUserSynonyms();renderUserSynList();flashStatus('syn-status',`✓ ${Object.keys(d).length} loaded`);},()=>flashStatus('syn-status','✗ Invalid'));inp.value='';}
+
+// ═══ FUZZY SEARCH ═══
+function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let prev=Array.from({length:n+1},(_,j)=>j),curr=new Array(n+1);for(let i=1;i<=m;i++){curr[0]=i;for(let j=1;j<=n;j++)curr[j]=a[i-1]===b[j-1]?prev[j-1]:1+Math.min(prev[j],curr[j-1],prev[j-1]);[prev,curr]=[curr,prev];}return prev[n];}
+function matchScore(word,query){
+  if(!query)return{score:100,type:null};const w=word.toUpperCase(),q=query.toUpperCase();
+  if(w===q)return{score:100,type:'exact'};if(w.startsWith(q))return{score:85,type:'prefix'};if(w.includes(q))return{score:70,type:'substr'};
+  let qi=0;for(let wi=0;wi<w.length&&qi<q.length;wi++)if(w[wi]===q[qi])qi++;if(qi===q.length)return{score:50,type:'fuzzy'};
+  const md=q.length<=3?1:q.length<=6?2:3,d=lev(w.slice(0,q.length+2),q);
+  if(d<=md)return{score:Math.max(10,40-d*10),type:'fuzzy'};return{score:0,type:null};
+}
+
+// ═══ VOCAB BROWSER ═══
+function renderVocabBrowser(){document.getElementById('copy-all-btn').disabled=!state.allWords.length;filterVocab();}
+function clearFeatureSearch(){document.getElementById('fs-hs').value='';document.getElementById('fs-loc').value='';document.getElementById('feature-row').classList.remove('active');filterVocab();}
+function filterVocab(){
+  const grid=document.getElementById('vocab-grid'),count=document.getElementById('vocab-count');
+  const words=state.allWords,q=document.getElementById('vocab-search').value.trim();
+  const fuzzyOn=document.getElementById('fuzzy-toggle').checked;
+  const selHS=document.getElementById('fs-hs').value,selLoc=document.getElementById('fs-loc').value;
+  const featureMode=selHS||selLoc;
+  if(!words.length){grid.innerHTML='<div class="vocab-empty">Open a folder first.</div>';count.textContent='No folder';return;}
+  document.getElementById('feature-row').classList.toggle('active',!!featureMode);
+  const tagged=Object.keys(state.signMeta).filter(s=>state.allWords.includes(s)).length;
+  document.getElementById('fs-hint').textContent=featureMode?`${tagged}/${words.length} tagged`:'Select to search by physical features';
+  let pool=words;
+  if(featureMode){
+    pool=pool.filter(w=>{const m=state.signMeta[w];if(!m)return false;if(selHS&&m.handshape!==selHS)return false;if(selLoc&&m.location!==selLoc)return false;return true;});
+    count.textContent=`${pool.length} / ${words.length} match features`;
+    if(!pool.length){grid.innerHTML='<div class="vocab-empty">No signs tagged with these features.</div>';return;}
+    grid.innerHTML=pool.map(w=>{const m=state.signMeta[w];return`<button class="vchip tagged" onclick="insertSign('${esc(w)}')" title="${esc(m.handshape||'')} · ${esc(m.location||'')}">${esc(w)}<span class="phon-tag">${esc(m.handshape||'')} · ${esc(m.location||'')}</span></button>`;}).join('');
+    return;
+  }
+  if(!q){count.textContent=`${words.length} signs`;grid.innerHTML=words.map(w=>{const m=state.signMeta[w];const tag=m?`<span class="phon-tag">${esc(m.handshape||'')} · ${esc(m.location||'')}</span>`:'';return`<button class="vchip${m?' tagged':''}" onclick="insertSign('${esc(w)}')">${esc(w)}${tag}</button>`;}).join('');return;}
+  const scored=pool.map(w=>({w,...matchScore(w,q)})).filter(x=>x.score>0&&(fuzzyOn||x.type!=='fuzzy')).sort((a,b)=>b.score-a.score);
+  count.textContent=`${scored.length}/${words.length}`;
+  if(!scored.length){grid.innerHTML='<div class="vocab-empty">No matches.</div>';return;}
+  const exact=scored.filter(x=>x.type!=='fuzzy'),fuzzy=scored.filter(x=>x.type==='fuzzy');
+  let html=exact.map(x=>`<button class="vchip${state.signMeta[x.w]?' tagged':''}" onclick="insertSign('${esc(x.w)}')">${esc(x.w)}</button>`).join('');
+  if(fuzzy.length){html+=`<div class="vocab-sep">Approximate</div>`;html+=fuzzy.map(x=>`<button class="vchip fuzzy" onclick="insertSign('${esc(x.w)}')">${esc(x.w)}</button>`).join('');}
+  grid.innerHTML=html;
+}
+function insertSign(sn){document.getElementById('input-text').value=sn.toLowerCase().replace(/_/g,' ');translate();}
+function copyAllSigns(){navigator.clipboard.writeText(state.allWords.join('\n')).then(()=>{const b=document.getElementById('copy-all-btn'),o=b.textContent;b.textContent='✓';setTimeout(()=>b.textContent=o,1800);}).catch(()=>{});}
+
+// ═══ HANDSHAPE IMAGE GRID ═══
+async function buildHsGrid(){
+  const grid=document.getElementById('hs-grid');if(!grid)return;
+  const imgs=await imgLoadAll();
+  grid.innerHTML=TSL_HANDSHAPES.map(hs=>{
+    const key='hs:'+hs,img=imgs[key];
+    const sel=state.selectedHs===hs?' selected':'',hasImg=img?' has-img':'';
+    return`<div class="hs-cell${sel}${hasImg}" onclick="selectHs('${esc(hs)}')" data-hs="${esc(hs)}" title="${esc(hs)}">
+      ${img?`<img class="hs-img" src="${img}" alt="${esc(hs)}">`:''}
+      <span class="hs-name">${esc(hs)}</span>
+      <button class="hs-upload-btn" onclick="triggerHsUpload(event,'${esc(hs)}')" title="Upload image">📷</button>
+      <input type="file" accept="image/*" style="display:none" onchange="uploadHsImage(this,'${esc(hs)}')">
+    </div>`;
+  }).join('');
+}
+function selectHs(hs){
+  state.selectedHs=hs;
+  document.getElementById('hs-selected-label').textContent=hs;
+  document.querySelectorAll('.hs-cell').forEach(c=>c.classList.toggle('selected',c.dataset.hs===hs));
+}
+function clearHsSelection(){state.selectedHs='';document.getElementById('hs-selected-label').textContent='none selected';document.querySelectorAll('.hs-cell').forEach(c=>c.classList.remove('selected'));}
+function triggerHsUpload(event,hs){event.stopPropagation();event.currentTarget.nextElementSibling.click();}
+async function uploadHsImage(input,hs){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();reader.onload=async e=>{
+    const dataUrl=e.target.result;await imgSave('hs:'+hs,dataUrl);
+    await buildHsGrid();if(state.selectedHs)selectHs(state.selectedHs);
+  };reader.readAsDataURL(file);input.value='';
+}
+
+// ═══ BODY MAP ═══
+function clearLocSelection(){state.selectedLoc='';document.getElementById('loc-selected-label').textContent='none selected';document.querySelectorAll('.body-zone').forEach(z=>z.classList.remove('selected'));}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.body-zone').forEach(zone=>{
+    zone.addEventListener('click',()=>{
+      const loc=zone.dataset.loc;if(!loc)return;
+      state.selectedLoc=loc;
+      document.getElementById('loc-selected-label').textContent=loc;
+      document.querySelectorAll('.body-zone').forEach(z=>z.classList.toggle('selected',z.dataset.loc===loc));
+    });
+  });
+});
+
+// ═══ SIGN PHONOLOGY ═══
+function bulkAssignPhonology(){
+  const hs=state.selectedHs,loc=state.selectedLoc;
+  if(!hs&&!loc){flashStatus('phon-status','Select a handshape and/or location first');return;}
+  const raw=document.getElementById('phon-signs').value;
+  const signs=raw.split(/[\n,]+/).map(s=>s.trim().toUpperCase()).filter(Boolean);
+  if(!signs.length){flashStatus('phon-status','Enter sign names');return;}
+  signs.forEach(s=>{if(!state.signMeta[s])state.signMeta[s]={handshape:'',location:''};if(hs)state.signMeta[s].handshape=hs;if(loc)state.signMeta[s].location=loc;});
+  document.getElementById('phon-signs').value='';saveSignMeta();updatePhonStats();renderVocabBrowser();
+  flashStatus('phon-status',`✓ Tagged ${signs.length} sign${signs.length!==1?'s':''}`);
+}
+function updatePhonStats(){const el=document.getElementById('phon-stats');if(!el)return;const t=Object.keys(state.signMeta).length;const i=Object.keys(state.signMeta).filter(s=>state.allWords.includes(s)).length;el.textContent=t?`${t} signs tagged (${i} match indexed)`:'No signs tagged yet.';}
+function saveSignMeta(){try{localStorage.setItem('tsl-sign-meta',JSON.stringify(state.signMeta));}catch(e){}}
+function clearAllPhon(){state.signMeta={};saveSignMeta();updatePhonStats();renderVocabBrowser();flashStatus('phon-status','Cleared');}
+function savePhonFile(){downloadFile('tsl-phonology.json',JSON.stringify(state.signMeta,null,2),'application/json');flashStatus('phon-status','✓ Saved');}
+function loadPhonFile(inp){const f=inp.files[0];if(!f)return;readJson(f,d=>{Object.assign(state.signMeta,d);saveSignMeta();updatePhonStats();renderVocabBrowser();flashStatus('phon-status',`✓ ${Object.keys(d).length} loaded`);},()=>flashStatus('phon-status','✗ Invalid'));inp.value='';}
+
+// ═══ LEXICAL CATEGORIES ═══
+function bulkAssignCategory(){
+  const cat=document.getElementById('lex-cat-sel').value;
+  const words=document.getElementById('lex-words-input').value.split(/[\n,]+/).map(w=>w.trim().toLowerCase()).filter(Boolean);
+  if(!words.length)return;words.forEach(w=>{state.lexicalCategories[w]=cat;});
+  document.getElementById('lex-words-input').value='';saveLexCats();renderLexList();flashStatus('lex-status',`✓ ${words.length} → ${cat}`);
+  if(state.tokens.length){renderTokens();highlightPill(state.currentIdx);}
+}
+function removeLexCat(word){delete state.lexicalCategories[word];saveLexCats();renderLexList();if(state.tokens.length){renderTokens();highlightPill(state.currentIdx);}}
+function clearAllCats(){state.lexicalCategories={};saveLexCats();renderLexList();flashStatus('lex-status','Cleared');}
+function renderLexList(){
+  const list=document.getElementById('lex-list'),entries=Object.entries(state.lexicalCategories);
+  if(!entries.length){list.innerHTML='';return;}
+  const groups={};entries.forEach(([w,c])=>{if(!groups[c])groups[c]=[];groups[c].push(w);});
+  list.innerHTML=Object.entries(groups).map(([cat,words])=>`<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer);padding:8px 0 3px;border-top:1px solid var(--border);margin-top:4px">${esc(cat)}</div>${words.sort().map(w=>`<div class="mitem"><span class="mfrom">${esc(w)}</span><span class="mto" style="font-size:10px">${esc(CAT_ABBR[cat]||cat)}</span><button class="mdel" onclick="removeLexCat('${esc(w)}')">✕</button></div>`).join('')}`).join('');
+}
+function saveLexCats(){try{localStorage.setItem('tsl-lexical-categories',JSON.stringify(state.lexicalCategories));}catch(e){}}
+function saveLexFile(){downloadFile('tsl-categories.json',JSON.stringify(state.lexicalCategories,null,2),'application/json');flashStatus('lex-status','✓ Saved');}
+function loadLexFile(inp){const f=inp.files[0];if(!f)return;readJson(f,d=>{Object.assign(state.lexicalCategories,d);saveLexCats();renderLexList();flashStatus('lex-status',`✓ ${Object.keys(d).length} loaded`);},()=>flashStatus('lex-status','✗ Invalid'));inp.value='';}
+
+// ═══ PHRASEBOOK ═══
+function saveCurrentPhrase(){
+  const text=document.getElementById('input-text').value.trim();if(!text)return;
+  const tagRaw=document.getElementById('phrase-tag-input').value;
+  const tags=tagRaw.split(',').map(t=>t.trim()).filter(Boolean);
+  const existing=state.phrasebook.findIndex(p=>p.text===text);
+  if(existing>=0)state.phrasebook.splice(existing,1);
+  state.phrasebook.unshift({id:Date.now().toString(),text,tags,savedAt:Date.now()});
+  document.getElementById('phrase-tag-input').value='';
+  savePhrasebook();renderPhrasebook();
+  flashStatus('bulk-status','⭐ Saved to Phrasebook',1800);
+}
+function deletePhrase(id){state.phrasebook=state.phrasebook.filter(p=>p.id!==id);savePhrasebook();renderPhrasebook();}
+function renderPhrasebook(){
+  const list=document.getElementById('phrasebook-list');
+  const q=(document.getElementById('phrase-search').value||'').toLowerCase();
+  const shown=state.phrasebook.filter(p=>!q||p.text.toLowerCase().includes(q)||p.tags.some(t=>t.toLowerCase().includes(q)));
+  if(!shown.length){list.innerHTML='<div class="history-empty">No saved phrases yet.</div>';return;}
+  list.innerHTML=shown.map(p=>`<div class="phrase-item" onclick="loadPhrase('${esc(p.id)}')">
+    <span class="phrase-text">${esc(p.text)}</span>
+    <div class="phrase-tags">${p.tags.map(t=>`<span class="phrase-tag">${esc(t)}</span>`).join('')}</div>
+    <button class="phrase-del" onclick="event.stopPropagation();deletePhrase('${esc(p.id)}')" title="Delete">✕</button>
+  </div>`).join('');
+}
+function loadPhrase(id){const p=state.phrasebook.find(x=>x.id===id);if(!p)return;document.getElementById('input-text').value=p.text;translate();}
+function savePhrasebook(){try{localStorage.setItem('tsl-phrasebook',JSON.stringify(state.phrasebook));}catch(e){}}
+function exportPhrasebook(){downloadFile('tsl-phrasebook.json',JSON.stringify(state.phrasebook,null,2),'application/json');}
+function importPhrasebook(inp){const f=inp.files[0];if(!f)return;readJson(f,d=>{state.phrasebook=[...d,...state.phrasebook];savePhrasebook();renderPhrasebook();},()=>{});inp.value='';}
+
+// ═══ SENTENCE HISTORY ═══
+function addToHistory(text){
+  state.sentenceHistory=state.sentenceHistory.filter(s=>s!==text);
+  state.sentenceHistory.unshift(text);if(state.sentenceHistory.length>50)state.sentenceHistory.length=50;
+  try{localStorage.setItem('tsl-sentence-history',JSON.stringify(state.sentenceHistory));}catch(e){}
+  renderHistory();
+}
+function clearHistory(){state.sentenceHistory=[];try{localStorage.setItem('tsl-sentence-history','[]');}catch(e){}renderHistory();}
+function renderHistory(){
+  const list=document.getElementById('history-list');if(!list)return;
+  const q=(document.getElementById('history-search').value||'').toLowerCase();
+  const shown=state.sentenceHistory.filter(s=>!q||s.toLowerCase().includes(q));
+  if(!shown.length){list.innerHTML='<div class="history-empty">No history yet.</div>';return;}
+  list.innerHTML=shown.map((s,i)=>`<button class="history-item" onclick="loadHistory(${i})">${esc(s)}</button>`).join('');
+}
+function loadHistory(idx){
+  const q=(document.getElementById('history-search').value||'').toLowerCase();
+  const shown=state.sentenceHistory.filter(s=>!q||s.toLowerCase().includes(q));
+  const s=shown[idx];if(s==null)return;document.getElementById('input-text').value=s;translate();
+}
+
+// ═══ BATCH TRANSLATE ═══
+function runBatchTranslate(){
+  const lines=document.getElementById('batch-input').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.length)return;
+  state.batchResult=lines.map(line=>{
+    const{reordered}=processInput(line,state.grammarEnabled);
+    const tokens=applyCompounds(reordered).map(ct=>ct.isCompound?ct.signName:resolveToken(ct.word,null).signName);
+    return{en:line,tsl:tokens.join(' ')};
+  });
+  const div=document.getElementById('batch-result');div.style.display='block';
+  div.innerHTML=state.batchResult.map(r=>`<div class="batch-row"><div class="batch-en">${esc(r.en)}</div><div class="batch-tsl">${esc(r.tsl)}</div></div>`).join('');
+}
+function exportBatchResult(){
+  if(!state.batchResult.length)return;
+  const text=state.batchResult.map(r=>`EN: ${r.en}\nTSL: ${r.tsl}`).join('\n\n');
+  downloadFile('tsl-batch-result.txt',text,'text/plain');
+}
+
+// ═══ NOTES & FREQ ═══
+function saveNotes(){try{localStorage.setItem('tsl-sign-notes',JSON.stringify(state.signNotes));}catch(e){}}
+function saveFreq(){try{localStorage.setItem('tsl-sign-freq',JSON.stringify(state.signFreq));}catch(e){}}
+
+// ═══ SETTINGS ═══
+function toggleTheme(){
+  const light=document.body.classList.toggle('theme-light');
+  state.settings.theme=light?'light':'dark';
+  try{localStorage.setItem('tsl-settings',JSON.stringify(state.settings));}catch(e){}
+}
+function adjustFont(delta){
+  state.settings.fontSize=Math.max(11,Math.min(20,state.settings.fontSize+delta));
+  document.documentElement.style.setProperty('--fs',state.settings.fontSize+'px');
+  try{localStorage.setItem('tsl-settings',JSON.stringify(state.settings));}catch(e){}
+}
+
+// ═══ KEYBOARD SHORTCUTS ═══
+document.addEventListener('keydown',e=>{
+  const tag=(document.activeElement||{}).tagName;if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+  switch(e.key){
+    case ' ':e.preventDefault();togglePlay();break;
+    case 'ArrowRight':e.preventDefault();e.shiftKey?stepFrame(1):nextSign();break;
+    case 'ArrowLeft':e.preventDefault();e.shiftKey?stepFrame(-1):prevSign();break;
+    case 'l':case 'L':toggleLoop();break;
+    case 'r':case 'R':if(state.tokens.length){stopPlayback();state.isPlaying=false;playToken(0);updatePlayerUI();}break;
+    case 'f':case 'F':toggleFullscreen();break;
+    case 'p':case 'P':togglePresenter();break;
+  }
+});
+
+// ═══ UTILS ═══
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function showEl(id){document.getElementById(id).style.display='block';}
+function handleTextKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();translate();}}
+function downloadFile(name,content,type){const b=new Blob([content],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+function flashStatus(id,msg,ms=2500){const el=document.getElementById(id);if(!el)return;el.textContent=msg;setTimeout(()=>{el.textContent='';},ms);}
+function readJson(file,onOk,onErr){const r=new FileReader();r.onload=e=>{try{onOk(JSON.parse(e.target.result));}catch(err){onErr(err);}};r.readAsText(file);}
+
+// Panel persistence
+['phrasebook-section','custom-mappings-section','vocab-section','phonology-section','lexical-section','batch-section','bulk-import-section','history-section','synonym-manager-section'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('toggle',()=>{try{localStorage.setItem('tsl-panel-'+id,el.open?'1':'0');}catch(e){}});
+});
+
+// ═══ PAGE INIT ═══
+(async function pageInit(){
+  // Settings
+  try{const s=JSON.parse(localStorage.getItem('tsl-settings')||'{}');Object.assign(state.settings,s);if(s.theme==='light')document.body.classList.add('theme-light');if(s.fontSize)document.documentElement.style.setProperty('--fs',s.fontSize+'px');}catch(e){}
+  // Profiles / mappings
+  try{const p=localStorage.getItem('tsl-profiles');if(p){state.profiles=JSON.parse(p);state.customMappings=state.profiles[state.currentProfile]||{};}}catch(e){}
+  renderProfileSelect();renderMappings();
+  // Lexical categories
+  try{const r=localStorage.getItem('tsl-lexical-categories');if(r){state.lexicalCategories=JSON.parse(r);renderLexList();}}catch(e){}
+  // Sign meta
+  try{const r=localStorage.getItem('tsl-sign-meta');if(r)state.signMeta=JSON.parse(r);}catch(e){}
+  // Sign notes & freq
+  try{const r=localStorage.getItem('tsl-sign-notes');if(r)state.signNotes=JSON.parse(r);}catch(e){}
+  try{const r=localStorage.getItem('tsl-sign-freq');if(r)state.signFreq=JSON.parse(r);}catch(e){}
+  // History
+  try{const r=localStorage.getItem('tsl-sentence-history');if(r){state.sentenceHistory=JSON.parse(r);renderHistory();}}catch(e){}
+  // Phrasebook
+  try{const r=localStorage.getItem('tsl-phrasebook');if(r){state.phrasebook=JSON.parse(r);renderPhrasebook();}}catch(e){}
+  // Dialect
+  try{const d=localStorage.getItem('tsl-dialect');if(d==='north'||d==='south')setDialect(d);}catch(e){}
+  // Panel states
+  ['phrasebook-section','custom-mappings-section','vocab-section','phonology-section','lexical-section','batch-section','bulk-import-section','history-section','synonym-manager-section'].forEach(id=>{
+    try{const v=localStorage.getItem('tsl-panel-'+id);if(v!==null)document.getElementById(id).open=(v==='1');}catch(e){}
+  });
+  // Build handshape grid
+  await buildHsGrid();
+  // Load cached video library — persists automatically between sessions
+  await loadVideoIndex();
+  // iOS install banner
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isStandalone=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
+  if(isIOS&&!isStandalone){const b=document.getElementById('install-banner');if(b)b.style.display='flex';}
+})();
+
+// ═══ KEYBOARD / VIEWPORT FIX (iPad landscape) ═══
+(function(){
+  const ta = document.getElementById('input-text');
+  if(!ta) return;
+
+  function scrollInputIntoView(){
+    // Small delay lets the keyboard fully animate in
+    setTimeout(()=>{
+      if(document.activeElement !== ta) return;
+      const rect = ta.getBoundingClientRect();
+      const vvh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      // If the bottom of the textarea is below the visible viewport, scroll it up
+      if(rect.bottom > vvh - 16){
+        ta.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    }, 300);
+  }
+
+  ta.addEventListener('focus', scrollInputIntoView);
+
+  // visualViewport fires when keyboard slides in/out
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', ()=>{
+      if(document.activeElement === ta) scrollInputIntoView();
+    });
+    window.visualViewport.addEventListener('scroll', ()=>{
+      if(document.activeElement === ta) scrollInputIntoView();
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

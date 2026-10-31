@@ -1,0 +1,5 @@
+{
+  "baseUrl": "clips/",
+  "maxConcurrent": 2,
+  "minGapMs": 250
+}
