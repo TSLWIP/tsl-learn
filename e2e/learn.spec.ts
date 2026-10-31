@@ -276,11 +276,28 @@ test('nothing due: says so plainly instead of starting an empty session', async 
 
 test('keyboard: number keys pick an answer', async ({ page }) => {
   await start(page);
+  // record what the page really receives, so a failure on another machine says where the key went
+  await page.evaluate(() => {
+    const w = window as unknown as { __keys: string[] };
+    w.__keys = [];
+    addEventListener('keydown', (e) => w.__keys.push(`${e.key} on ${(e.target as HTMLElement).tagName}`), true);
+  });
   await page.getByTestId('mode-sign-to-meaning').click();
   await page.getByTestId('start-quick').click();
   await expect(page.getByTestId('option')).toHaveCount(4);
   await page.keyboard.press('1');
-  await expect(page.getByTestId('feedback')).toBeVisible();
+  try {
+    await expect(page.getByTestId('feedback')).toBeVisible();
+  } catch (e) {
+    const seen = await page.evaluate(() => ({
+      keys: (window as unknown as { __keys: string[] }).__keys,
+      focus: document.activeElement?.tagName + '#' + document.activeElement?.id,
+      hasFocus: document.hasFocus(),
+      visibility: document.visibilityState,
+      quiz: document.querySelector('[data-testid=quiz]')?.textContent?.slice(0, 200),
+    }));
+    throw new Error(`number key was not handled. Page saw: ${JSON.stringify(seen)}\n${String(e)}`);
+  }
 });
 
 test('phone layout: quiz screens fit, answer targets are big enough, nothing hides the options', async ({ page }) => {
