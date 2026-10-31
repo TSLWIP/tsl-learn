@@ -132,6 +132,7 @@ export function QuizRunner({ ctx, prefs, setPrefs, steps: initial, title, progre
 
   return (
     <section class="quiz" aria-label={title} data-testid="quiz">
+      <h1 class="sr-only">{title}</h1>
       <header class="quiz-head">
         <div>
           <p class="note" data-testid="quiz-progress">
@@ -283,7 +284,7 @@ function MeaningToSign({ ctx, q, fb, onPick }: {
             data-testid="option"
             data-correct={o.id === q.target.id}
             disabled={!!fb}
-            aria-label={`Sign ${i + 1}`}
+            aria-label={fb ? o.english[0] : `Sign ${i + 1}`}
             onClick={() => onPick(o)}
           >
             <MiniClip ctx={ctx} entry={o} label={fb ? `${o.chinese ?? ''} ${o.english[0]}` : `Sign option ${i + 1}`} />

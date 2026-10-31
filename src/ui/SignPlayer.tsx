@@ -6,6 +6,9 @@ import type { Speed } from '../state/prefs.ts';
 
 const SPEEDS: Speed[] = [0.5, 0.75, 1];
 
+/** People who ask their system for less motion get a still frame and a play button instead of an autoplaying loop. */
+const reduceMotion = (): boolean => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 interface Props {
   ctx: AppContext;
   entry: LexEntry;
@@ -34,7 +37,7 @@ export function SignPlayer({ ctx, entry, speed, onSpeed, loop = true, onEnded, h
   const [status, setStatus] = useState<Status>('loading');
   const [url, setUrl] = useState<string | null>(null);
   const [reason, setReason] = useState('');
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(reduceMotion);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -101,7 +104,7 @@ export function SignPlayer({ ctx, entry, speed, onSpeed, loop = true, onEnded, h
             aria-label={hideLabel ? 'Sign to identify' : `Sign for ${label}`}
             muted
             playsInline
-            autoPlay
+            autoPlay={!reduceMotion()}
             loop={loop}
             preload="auto"
             tabIndex={0}
@@ -110,7 +113,7 @@ export function SignPlayer({ ctx, entry, speed, onSpeed, loop = true, onEnded, h
             onLoadedMetadata={() => video.current && (video.current.playbackRate = speed)}
             onPlay={() => setPaused(false)}
             onEnded={() => onEnded?.()}
-            onCanPlay={() => video.current?.paused && !paused && play()}
+            onCanPlay={() => !reduceMotion() && video.current?.paused && !paused && play()}
           />
         )}
         {status === 'loading' && (

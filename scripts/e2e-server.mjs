@@ -62,6 +62,7 @@ const reset = () => {
   state.inflight = 0;
   state.peak = 0;
   state.clipHits = {};
+  state.delayMs = 40;
 };
 
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
@@ -78,6 +79,7 @@ createServer(async (req, res) => {
   if (path === '/__ctl') {
     for (const v of url.searchParams.getAll('notFound')) state.notFound.add(v);
     for (const v of url.searchParams.getAll('allow')) state.notFound.delete(v);
+    if (url.searchParams.has('delay')) state.delayMs = Number(url.searchParams.get('delay'));
     if (url.searchParams.has('swSuffix')) state.swSuffix = url.searchParams.get('swSuffix');
     return send(200, 'ok');
   }

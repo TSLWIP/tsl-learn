@@ -14,9 +14,13 @@ export interface Prefs {
   haptics: boolean;
   /** which text multiple-choice quizzes show */
   quizLang: 'mixed' | 'en' | 'zh';
+  /** answers per day the progress screen aims for */
+  dailyGoal: number;
+  theme: 'auto' | 'light' | 'dark';
+  onboarded: boolean;
 }
 
-export const DEFAULT_PREFS: Prefs = { dialect: 'north', speed: 1, pins: {}, newPerDay: 5, sound: false, haptics: true, quizLang: 'mixed' };
+export const DEFAULT_PREFS: Prefs = { dialect: 'north', speed: 1, pins: {}, newPerDay: 5, sound: false, haptics: true, quizLang: 'mixed', dailyGoal: 20, theme: 'auto', onboarded: false };
 
 export interface MissingFlag {
   word: string;
@@ -40,6 +44,9 @@ export function sanitizePrefs(raw: unknown): Prefs {
     sound: r.sound === true,
     haptics: r.haptics !== false,
     quizLang: r.quizLang === 'en' || r.quizLang === 'zh' ? r.quizLang : 'mixed',
+    dailyGoal: Number.isFinite(r.dailyGoal) ? Math.min(200, Math.max(5, Math.round(r.dailyGoal as number))) : DEFAULT_PREFS.dailyGoal,
+    theme: r.theme === 'light' || r.theme === 'dark' ? r.theme : 'auto',
+    onboarded: r.onboarded === true,
   };
 }
 

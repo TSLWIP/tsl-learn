@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { ready } from './helpers.ts';
 
 test.beforeEach(async ({ request }) => {
   await request.get('/__reset');
@@ -13,7 +14,7 @@ async function lookup(page: Page, text: string) {
 
 async function start(page: Page) {
   await page.goto('/');
-  await expect(page.getByTestId('home-count')).toBeVisible();
+  await ready(page);
   await page.getByTestId('tab-lookup').click();
 }
 
@@ -55,7 +56,7 @@ test('all variants are listed and labelled; a pinned sign survives a reload', as
   await page.getByTestId('pin').click();
   await expect(page.getByTestId('pin')).toContainText('Preferred sign');
   await page.reload();
-  await expect(page.getByTestId('home-count')).toBeVisible();
+  await ready(page);
   await page.getByTestId('tab-lookup').click();
   await lookup(page, 'thank');
   await expect(page.getByTestId('detail-dialect')).toContainText('Both');
@@ -104,7 +105,7 @@ test('typeahead completes the word being typed', async ({ page }) => {
   await start(page);
   await input(page).fill('good b');
   await expect(page.getByTestId('typeahead')).toContainText('good bye');
-  await page.getByTestId('typeahead').getByRole('option').first().locator('button').click();
+  await page.getByTestId('typeahead').getByRole('option').first().click();
   await expect(input(page)).toHaveValue('good bye');
 });
 
@@ -142,7 +143,7 @@ test('a clip watched once plays again with the network off', async ({ page, cont
   await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true);
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByTestId('home-count')).toBeVisible();
+  await ready(page);
   await page.getByTestId('tab-lookup').click();
   await lookup(page, 'good bye');
   await expectPlaying(page);

@@ -13,7 +13,7 @@ export default defineConfig({
     { name: 'chromium', testMatch: 'chaos.spec.ts', use: { ...devices['Desktop Chrome'] } },
     // Lookup and playback need H.264, which bundled Chromium lacks: use installed Chrome locally,
     // and in CI (ubuntu runner has Chrome preinstalled).
-    { name: 'chrome', testMatch: /(lookup|learn)\.spec\.ts/, use: { ...devices['Desktop Chrome'], channel: 'chrome' } },
+    { name: 'chrome', testMatch: /(lookup|learn|milestone5|a11y)\.spec\.ts/, use: { ...devices['Desktop Chrome'], channel: 'chrome' } },
     { name: 'real', testMatch: 'real.spec.ts', use: { ...devices['Desktop Chrome'], channel: 'chrome' } },
   ],
 });

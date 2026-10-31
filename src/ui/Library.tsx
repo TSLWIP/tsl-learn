@@ -27,6 +27,7 @@ export function Library({ ctx, prefs, onPrefs }: { ctx: AppContext; prefs: Prefs
   if (entry) {
     return (
       <section>
+        <h1 class="sr-only">Sign library: {entry.english[0]}</h1>
         <button class="btn" data-testid="back" onClick={() => setSelected(null)}>
           ← Back to library
         </button>

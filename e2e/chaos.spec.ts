@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { ready } from './helpers.ts';
 
 test.beforeEach(async ({ request }) => {
   await request.get('/__reset');
@@ -8,7 +9,7 @@ const home = (page: Page) => page.getByTestId('home-count');
 
 async function firstLoad(page: Page) {
   await page.goto('/');
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   // wait until the service worker controls the page (shell cached)
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
 }
@@ -49,7 +50,7 @@ test('chaos: Cache API cleared while online -> app still starts and offline copy
     for (const k of await caches.keys()) await caches.delete(k);
   });
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   await openSettings(page);
   await expect(cachedCount(page)).toContainText('3 (');
 });
@@ -68,7 +69,7 @@ test('chaos: IndexedDB cleared -> app boots with empty progress, no crash', asyn
   );
   expect(outcome).not.toBe('error');
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   await openSettings(page);
   await expect(cachedCount(page)).toContainText('0 (');
 });
@@ -78,7 +79,7 @@ test('chaos: offline cold start works from the installed copy', async ({ page, c
   await downloadEtiquette(page);
   await context.setOffline(true);
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   await openSettings(page);
   await expect(cachedCount(page)).toContainText('3 (');
 });
@@ -93,7 +94,7 @@ test('chaos: offline AND app cache wiped -> clear message instead of a browser e
   await expect(page.locator('#sw-offline')).toContainText('saved copy of the app was cleared');
   await context.setOffline(false);
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
 });
 
 test('chaos: schema upgrade from a v1 store migrates saved progress', async ({ page }) => {
@@ -118,7 +119,7 @@ test('chaos: schema upgrade from a v1 store migrates saved progress', async ({ p
       }),
   );
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   const rows = await page.evaluate(
     () =>
       new Promise<any[]>((resolve, reject) => {
@@ -141,7 +142,7 @@ test('chaos: a clip returning 404 degrades gracefully and reports it', async ({ 
   await expect(cachedCount(page)).toContainText('2 (');
   // next launch tries to repair it, fails, and still starts normally
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   await expect(page.getByTestId('boot-note')).toContainText('could not be repaired');
   // the server fixes itself -> manual repair picks it up
   await request.get('/__ctl?allow=G/good_bye.mp4');
@@ -168,7 +169,7 @@ test('chaos: corrupt cached clip is detected and only that clip is re-downloaded
       }),
   );
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   const stats = await (await request.get('/__stats')).json();
   expect(Object.keys(stats.clipHits)).toEqual(['T/thank_b.mp4']);
   await openSettings(page);
@@ -192,7 +193,7 @@ test('chaos: 5,000 review events survive reload, export and import', async ({ pa
       }),
   );
   await page.reload();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
   await openSettings(page);
 
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('export').click()]);
@@ -211,6 +212,7 @@ test('chaos: 5,000 review events survive reload, export and import', async ({ pa
       }),
   );
   await page.reload();
+  await ready(page);
   await openSettings(page);
   await page.getByTestId('import').setInputFiles(path);
   await expect(page.getByTestId('settings-msg')).toContainText('5000 reviews');
@@ -242,5 +244,5 @@ test('fatal: sign list unreachable with no saved copy shows a clear message and 
   await expect(page.getByTestId('fatal-message')).toContainText('could not be loaded');
   await context.unroute('**/data/*.json');
   await page.getByRole('button', { name: 'Try again' }).click();
-  await expect(home(page)).toBeVisible();
+  await ready(page);
 });

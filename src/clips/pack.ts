@@ -43,9 +43,11 @@ export async function downloadClips(
   manifest: Manifest,
   videos: string[],
   onProgress?: (done: number, total: number) => void,
-): Promise<RepairResult> {
+  /** set `cancelled` to stop after the clips already in flight */
+  signal?: { cancelled: boolean },
+): Promise<RepairResult & { cancelled: boolean }> {
   const sizes = new Map(manifest.clips.map((c) => [c.video, c.size]));
-  const res: RepairResult = { fixed: [], failed: [] };
+  const res: RepairResult & { cancelled: boolean } = { fixed: [], failed: [], cancelled: false };
   let done = 0;
   const work = async (video: string) => {
     const r = await fetcher.fetchBlob(clipUrl(source, video), sizes.get(video));
@@ -61,6 +63,10 @@ export async function downloadClips(
   const queue = [...videos];
   const lanes = Array.from({ length: source.maxConcurrent }, async () => {
     while (queue.length) {
+      if (signal?.cancelled) {
+        res.cancelled = true;
+        return;
+      }
       const v = queue.shift()!;
       if (fetcher.tripped) {
         res.failed.push({ video: v, reason: 'tripped' });

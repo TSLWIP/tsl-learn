@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { ready } from './helpers.ts';
 
 // Runs only against the real dictionary and clips: REAL=1 npx playwright test --project=real
 test.describe('real dictionary', () => {
@@ -11,6 +13,7 @@ test.describe('real dictionary', () => {
 
   test('required words behave honestly on real data', async ({ page }) => {
     await page.goto('/');
+    await ready(page);
     await expect(page.getByTestId('home-count')).toContainText('5,390 signs');
     await page.getByTestId('tab-lookup').click();
 
@@ -38,6 +41,7 @@ test.describe('real dictionary', () => {
 
   test('library on 5,390 signs stays responsive', async ({ page }) => {
     await page.goto('/');
+    await ready(page);
     await page.getByTestId('tab-library').click();
     await expect(page.getByTestId('library-count')).toHaveText('5,390 signs');
     const t0 = Date.now();
@@ -51,6 +55,7 @@ test.describe('real dictionary', () => {
 
   test('a real Learn new session on the starter topics: quiz options look sensible and clips play', async ({ page }) => {
     await page.goto('/');
+    await ready(page);
     await expect(page.getByTestId('pool-size')).toBeVisible();
     const pool = await page.getByTestId('pool-size').textContent();
     console.log('starter pool:', pool);
@@ -76,5 +81,32 @@ test.describe('real dictionary', () => {
     console.log(seen.join(' // '));
     await expect(page.getByTestId('summary')).toBeVisible();
     await expect(page.getByTestId('score')).toContainText('5');
+  });
+
+  test('real-data screens pass the accessibility audit (light and dark)', async ({ page }) => {
+    test.setTimeout(90_000);
+    for (const scheme of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto('/');
+      await ready(page);
+      const found: string[] = [];
+      const audit = async (name: string) => {
+        const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze();
+        for (const v of r.violations) found.push(`${scheme} ${name}: ${v.id} (${v.nodes.length}) ${v.nodes[0]?.target.join(' ')}`);
+      };
+      await audit('learn');
+      await page.getByTestId('tab-lookup').click();
+      await page.getByTestId('lookup-input').fill('I want to eat rice, hello');
+      await page.getByTestId('lookup-go').click();
+      await expect(page.getByTestId('chips')).toBeVisible();
+      await audit('lookup');
+      await page.getByTestId('tab-library').click();
+      await audit('library');
+      await page.getByTestId('library-search').fill('水');
+      await audit('library (Chinese search)');
+      await page.getByTestId('tab-settings').click();
+      await audit('settings');
+      expect(found, found.join(' | ')).toEqual([]);
+    }
   });
 });

@@ -6,7 +6,9 @@ import {
 } from '../quiz/session.ts';
 import type { Confusions } from '../quiz/distractors.ts';
 import type { Question, Unit } from '../quiz/types.ts';
-import { loadConfusions, loadProgress, makeDeck } from '../state/learning.ts';
+import { loadConfusions, makeDeck } from '../state/learning.ts';
+import { activeDays, streak, todayCount } from '../progress/stats.ts';
+import { BackupReminder, loadActivity } from './Progress.tsx';
 import type { MissingFlag, Prefs } from '../state/prefs.ts';
 import type { Deck } from '../storage/types.ts';
 import { formatWhen } from './format.ts';
@@ -29,6 +31,7 @@ interface Session {
 
 export function Learn({ ctx, prefs, onPrefs }: { ctx: AppContext; prefs: Prefs; onPrefs: (p: Prefs) => void; flags: MissingFlag[] }) {
   const [progress, setProgress] = useState<ProgressMap | null>(null);
+  const [activity, setActivity] = useState<Awaited<ReturnType<typeof loadActivity>> | null>(null);
   const [confusions, setConfusions] = useState<Confusions>({});
   const [decks, setDecks] = useState<Deck[]>([]);
   const [pool, setPool] = useState('starter');
@@ -41,13 +44,15 @@ export function Learn({ ctx, prefs, onPrefs }: { ctx: AppContext; prefs: Prefs; 
   const [openDeck, setOpenDeck] = useState<string | null>(null);
 
   const reload = async () => {
-    const [p, c, d] = await Promise.all([loadProgress(ctx.repo), loadConfusions(ctx.repo), ctx.repo?.allDecks() ?? Promise.resolve([])]);
-    setProgress(p);
+    const [act, c, d] = await Promise.all([loadActivity(ctx), loadConfusions(ctx.repo), ctx.repo?.allDecks() ?? Promise.resolve([])]);
+    setActivity(act);
+    setProgress(act.progress);
     setConfusions(c);
     setDecks(d);
   };
   useEffect(() => void reload().catch((e) => ctx.repo?.logError('learn/load', e)), []);
 
+  const now0 = Date.now();
   const units: Unit[] = useMemo(() => {
     const all = ctx.lexicon.entries;
     if (pool === 'all') return groupUnits(ctx.index, all, prefs);
@@ -126,6 +131,21 @@ export function Learn({ ctx, prefs, onPrefs }: { ctx: AppContext; prefs: Prefs; 
     <section aria-labelledby="learn-h">
       <h1 id="learn-h">Learn 學習</h1>
       <p class="note">Short rounds, spaced out over time. Signs you miss come back sooner.</p>
+
+      {activity && (
+        <div class="strip" data-testid="status-strip">
+          <div class="strip-goal">
+            <progress max={prefs.dailyGoal} value={Math.min(todayCount(activity.reviews, now0), prefs.dailyGoal)} aria-label="Daily goal" />
+            <span data-testid="strip-today">
+              Today {todayCount(activity.reviews, now0)} / {prefs.dailyGoal}
+            </span>
+          </div>
+          <span class="chip-run" data-testid="strip-run">
+            {streak(activeDays(activity.reviews), now0)}-day run
+          </span>
+        </div>
+      )}
+      {activity && <BackupReminder ctx={ctx} data={activity} onChange={() => void reload()} />}
 
       {notice && (
         <p class="note" role="status" data-testid="learn-notice">

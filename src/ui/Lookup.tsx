@@ -147,6 +147,8 @@ export function Lookup({ ctx, prefs, onPrefs, flags, onFlag }: Props) {
             role="combobox"
             aria-expanded={ta.length > 0}
             aria-controls="ta-list"
+            aria-autocomplete="list"
+            aria-activedescendant={hi >= 0 && ta[hi] ? `ta-opt-${hi}` : undefined}
             onInput={(e) => (setText((e.target as HTMLInputElement).value), setHi(-1))}
             onFocus={() => setFocused(true)}
             onBlur={() => setTimeout(() => setFocused(false), 150)}
@@ -155,8 +157,16 @@ export function Lookup({ ctx, prefs, onPrefs, flags, onFlag }: Props) {
           {ta.length > 0 && (
             <ul id="ta-list" class="typeahead" role="listbox" data-testid="typeahead">
               {ta.map((t, i) => (
-                <li key={t.entryId} role="option" aria-selected={i === hi}>
-                  <button type="button" class={i === hi ? 'hi' : ''} onMouseDown={(e) => (e.preventDefault(), accept(t.label))}>
+                <li key={t.entryId} role="presentation">
+                  <button
+                    type="button"
+                    role="option"
+                    id={`ta-opt-${i}`}
+                    tabIndex={-1}
+                    aria-selected={i === hi}
+                    class={i === hi ? 'hi' : ''}
+                    onMouseDown={(e) => (e.preventDefault(), accept(t.label))}
+                  >
                     <span lang="zh-Hant">{t.chinese}</span> {t.label}
                   </button>
                 </li>
