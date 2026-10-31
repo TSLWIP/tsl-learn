@@ -14,6 +14,7 @@ async function lookup(page: Page, text: string) {
 async function start(page: Page) {
   await page.goto('/');
   await expect(page.getByTestId('home-count')).toBeVisible();
+  await page.getByTestId('tab-lookup').click();
 }
 
 /** the clip is really decoding and moving, not just present in the DOM */
@@ -55,6 +56,7 @@ test('all variants are listed and labelled; a pinned sign survives a reload', as
   await expect(page.getByTestId('pin')).toContainText('Preferred sign');
   await page.reload();
   await expect(page.getByTestId('home-count')).toBeVisible();
+  await page.getByTestId('tab-lookup').click();
   await lookup(page, 'thank');
   await expect(page.getByTestId('detail-dialect')).toContainText('Both');
   await expect(page.getByTestId('variant-thank_b')).toHaveAttribute('aria-pressed', 'true');
@@ -141,6 +143,7 @@ test('a clip watched once plays again with the network off', async ({ page, cont
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByTestId('home-count')).toBeVisible();
+  await page.getByTestId('tab-lookup').click();
   await lookup(page, 'good bye');
   await expectPlaying(page);
 });

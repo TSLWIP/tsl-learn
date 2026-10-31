@@ -14,6 +14,8 @@ interface Props {
   /** single sign: loop forever. In a sequence: play once, then call onEnded */
   loop?: boolean;
   onEnded?: () => void;
+  /** in a quiz the label would give the answer away */
+  hideLabel?: boolean;
 }
 
 type Status = 'loading' | 'ready' | 'error';
@@ -27,7 +29,7 @@ const REASONS: Record<string, string> = {
 };
 
 /** The hero element: a muted looping clip that starts at once, pauses on tap, and always has its text beside it. */
-export function SignPlayer({ ctx, entry, speed, onSpeed, loop = true, onEnded }: Props) {
+export function SignPlayer({ ctx, entry, speed, onSpeed, loop = true, onEnded, hideLabel }: Props) {
   const video = useRef<HTMLVideoElement>(null);
   const [status, setStatus] = useState<Status>('loading');
   const [url, setUrl] = useState<string | null>(null);
@@ -96,7 +98,7 @@ export function SignPlayer({ ctx, entry, speed, onSpeed, loop = true, onEnded }:
             ref={video}
             src={url}
             data-testid="player-video"
-            aria-label={`Sign for ${label}`}
+            aria-label={hideLabel ? 'Sign to identify' : `Sign for ${label}`}
             muted
             playsInline
             autoPlay

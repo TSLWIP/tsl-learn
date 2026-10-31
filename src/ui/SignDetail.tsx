@@ -4,6 +4,7 @@ import type { LexEntry } from '../lexicon/types.ts';
 import { siblings } from '../match/index.ts';
 import { normalizeText } from '../match/normalize.ts';
 import type { Prefs, Speed } from '../state/prefs.ts';
+import { AddToDeck } from './AddToDeck.tsx';
 import { SignPlayer } from './SignPlayer.tsx';
 
 export const DIALECT_LABEL = {
@@ -106,6 +107,7 @@ export function SignDetail({ ctx, entry, prefs, onPrefs, loop = true, onEnded, p
           {pinned ? '★ Preferred sign for this word' : '☆ Prefer this sign for this word'}
         </button>
       )}
+      <AddToDeck ctx={ctx} entry={current} />
       <p class="note credit">
         Clip and gloss: <a href={current.sourceUrl} target="_blank" rel="noreferrer">TSL Online Dictionary</a>, National Chung Cheng University.
       </p>

@@ -49,6 +49,12 @@ export class Repo {
     await txDone(tx);
   }
 
+  async deleteDeck(id: string): Promise<void> {
+    const tx = this.db.transaction('decks', 'readwrite');
+    tx.objectStore('decks').delete(id);
+    await txDone(tx);
+  }
+
   async getClip(video: string): Promise<CachedClip | undefined> {
     return req(this.db.transaction('clips').objectStore('clips').get(video));
   }

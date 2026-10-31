@@ -12,6 +12,7 @@ test.describe('real dictionary', () => {
   test('required words behave honestly on real data', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('home-count')).toContainText('5,390 signs');
+    await page.getByTestId('tab-lookup').click();
 
     await go(page, 'Hello');
     await expect(page.getByTestId('chip-sign')).toHaveCount(0);
@@ -46,5 +47,34 @@ test.describe('real dictionary', () => {
     await page.getByTestId('library-search').fill('水');
     await expect(page.getByTestId('library-list').locator('li').first()).toBeVisible();
     await page.screenshot({ path: '.scratch/real-library.png' });
+  });
+
+  test('a real Learn new session on the starter topics: quiz options look sensible and clips play', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('pool-size')).toBeVisible();
+    const pool = await page.getByTestId('pool-size').textContent();
+    console.log('starter pool:', pool);
+    await page.getByTestId('start-learn').click();
+    const seen: string[] = [];
+    for (let i = 0; i < 40; i++) {
+      if (await page.getByTestId('summary').count()) break;
+      if (await page.getByTestId('feedback').count()) await page.getByTestId('next').click();
+      else if (await page.getByTestId('reveal').count()) {
+        await expect.poll(() => page.getByTestId('player-video').evaluate((v: HTMLVideoElement) => v.readyState >= 2 && v.currentTime > 0), { timeout: 15_000 }).toBe(true);
+        if (!seen.length) await page.screenshot({ path: '.scratch/real-intro.png' });
+        seen.push('intro');
+        await page.getByTestId('reveal').click();
+        await page.getByTestId('intro-next').click();
+      } else if (await page.getByTestId('option').count()) {
+        const labels = await page.getByTestId('option').allTextContents();
+        seen.push(labels.join(' | '));
+        if (seen.filter((x) => x.includes('|')).length === 1) await page.screenshot({ path: '.scratch/real-quiz.png' });
+        await page.locator('[data-testid=option][data-correct=true]').first().click();
+      }
+      await page.waitForTimeout(60);
+    }
+    console.log(seen.join(' // '));
+    await expect(page.getByTestId('summary')).toBeVisible();
+    await expect(page.getByTestId('score')).toContainText('5');
   });
 });

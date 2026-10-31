@@ -29,6 +29,7 @@ const cachedCount = (page: Page) => page.getByTestId('cached-count');
 test('fresh start shows the sign list, never a blank page', async ({ page }) => {
   await firstLoad(page);
   await expect(home(page)).toContainText('7 signs ready');
+  await page.getByTestId('tab-lookup').click();
   await expect(page.getByTestId('grammar-note')).toContainText('word order differ');
 });
 

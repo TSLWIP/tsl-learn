@@ -13,6 +13,8 @@ export interface SignProgress {
   dueAt: number;
   reps: number;
   lapses: number;
+  /** epoch ms of the first review; used for the daily new-sign cap */
+  introducedAt?: number;
 }
 
 export interface ReviewEvent {

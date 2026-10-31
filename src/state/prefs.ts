@@ -8,9 +8,15 @@ export interface Prefs {
   speed: Speed;
   /** normalised English gloss (or "zh:<chinese>") -> entry id the learner prefers */
   pins: Record<string, string>;
+  /** how many new signs "Learn new" introduces per day */
+  newPerDay: number;
+  sound: boolean;
+  haptics: boolean;
+  /** which text multiple-choice quizzes show */
+  quizLang: 'mixed' | 'en' | 'zh';
 }
 
-export const DEFAULT_PREFS: Prefs = { dialect: 'north', speed: 1, pins: {} };
+export const DEFAULT_PREFS: Prefs = { dialect: 'north', speed: 1, pins: {}, newPerDay: 5, sound: false, haptics: true, quizLang: 'mixed' };
 
 export interface MissingFlag {
   word: string;
@@ -30,6 +36,10 @@ export function sanitizePrefs(raw: unknown): Prefs {
     dialect: r.dialect === 'south' ? 'south' : 'north',
     speed: r.speed === 0.5 || r.speed === 0.75 ? r.speed : 1,
     pins,
+    newPerDay: Number.isFinite(r.newPerDay) ? Math.min(30, Math.max(1, Math.round(r.newPerDay as number))) : DEFAULT_PREFS.newPerDay,
+    sound: r.sound === true,
+    haptics: r.haptics !== false,
+    quizLang: r.quizLang === 'en' || r.quizLang === 'zh' ? r.quizLang : 'mixed',
   };
 }
 

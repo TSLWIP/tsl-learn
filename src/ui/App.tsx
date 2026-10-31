@@ -3,6 +3,7 @@ import { boot, BootError, type AppContext, type BootState } from '../boot/boot.t
 import { registerServiceWorker } from '../sw-register.ts';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
 import { savePrefs, saveFlags, type MissingFlag, type Prefs } from '../state/prefs.ts';
+import { Learn } from './Learn.tsx';
 import { Library } from './Library.tsx';
 import { Lookup } from './Lookup.tsx';
 import { Settings } from './Settings.tsx';
@@ -12,7 +13,7 @@ const sw = registerServiceWorker();
 export function App() {
   const [state, setState] = useState<BootState>({ phase: 'starting', detail: 'Starting' });
   const [ctx, setCtx] = useState<AppContext | null>(null);
-  const [tab, setTab] = useState<'lookup' | 'library' | 'settings'>('lookup');
+  const [tab, setTab] = useState<'learn' | 'lookup' | 'library' | 'settings'>('learn');
   const [prefs, setPrefsState] = useState<Prefs | null>(null);
   const [flags, setFlags] = useState<MissingFlag[]>([]);
   const [update, setUpdate] = useState(false);
@@ -110,12 +111,16 @@ export function App() {
       )}
       <main>
         <ErrorBoundary where={tab} repo={ctx.repo} key={tab}>
+          {tab === 'learn' && <Learn ctx={ctx} prefs={p} onPrefs={setPrefs} flags={flags} />}
           {tab === 'lookup' && <Lookup ctx={ctx} prefs={p} onPrefs={setPrefs} flags={flags} onFlag={addFlag} />}
           {tab === 'library' && <Library ctx={ctx} prefs={p} onPrefs={setPrefs} />}
           {tab === 'settings' && <Settings ctx={ctx} prefs={p} onPrefs={setPrefs} flags={flags} onClearFlags={clearFlags} />}
         </ErrorBoundary>
       </main>
       <nav class="tabs" aria-label="Main">
+        <button aria-current={tab === 'learn' ? 'page' : undefined} onClick={() => setTab('learn')} data-testid="tab-learn">
+          Learn
+        </button>
         <button aria-current={tab === 'lookup' ? 'page' : undefined} onClick={() => setTab('lookup')} data-testid="tab-lookup">
           Lookup
         </button>

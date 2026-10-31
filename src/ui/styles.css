@@ -182,3 +182,50 @@ pre {
 .status { margin-top: 24px; }
 .credit a { display: inline-block; padding: 14px 4px; }
 a { color: var(--accent); }
+
+/* --- learn + quiz --- */
+.start-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+.card.start { display: flex; flex-direction: column; gap: 4px; text-align: left; color: var(--ink); font: inherit; cursor: pointer; min-height: 88px; margin: 0; }
+.card.start:disabled { opacity: .5; }
+.card.start.hl { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.card.start span { color: var(--muted); }
+.field { display: block; }
+.cats.wrap { flex-wrap: wrap; overflow: visible; }
+select.input { padding-right: 8px; }
+.deck-row { flex-wrap: wrap; }
+.deck-signs { width: 100%; padding-left: 12px; }
+.quiz-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.quiz-head progress { width: 100%; height: 8px; accent-color: var(--accent); }
+.quiz-head > div { flex: 1; }
+.prompt { font-size: 1.15rem; margin: 16px 0 8px; }
+.big { font-size: 1.4rem; }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0 16px; }
+.option { min-height: 56px; display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.option .num { color: var(--muted); font-size: .8rem; }
+.option .zh { font-size: 1.3rem; }
+.option.right, .tile.right { border-color: #2f9e62; background: color-mix(in srgb, #2f9e62 18%, var(--card)); }
+.option.wrong { border-color: #d64545; animation: shake .3s; }
+.option.dim, .tile.dim { opacity: .55; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0 16px; }
+.tile { padding: 4px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; font: inherit; }
+.tile.sel { border-color: var(--accent); }
+.tile-label { display: block; padding: 4px; font-size: .9rem; }
+.mini { aspect-ratio: 4 / 3; background: #1b1d22; border-radius: 8px; overflow: hidden; display: grid; place-items: center; color: #fff; }
+.mini video { width: 100%; height: 100%; object-fit: contain; }
+.feedback { position: sticky; bottom: 72px; padding: 12px 16px; border-radius: 12px; margin-top: 12px; border: 1px solid var(--line); background: var(--card); animation: pop .2s; z-index: 3; }
+.feedback.right { border-color: #2f9e62; }
+.feedback.wrong { border-color: #d64545; }
+.feedback p { margin: 0 0 6px; }
+.answer .zh, .answer [lang] { font-size: 1.1rem; }
+.grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.grades .btn { margin: 0; }
+.summary { text-align: center; }
+.score { font-size: 3rem; margin: 8px 0; font-weight: 700; }
+.summary ul { text-align: center; }
+@keyframes pop { from { transform: scale(.97); opacity: .6; } to { transform: scale(1); opacity: 1; } }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (max-width: 380px) { .grades { grid-template-columns: 1fr 1fr; } }
+.stepper { display: inline-flex; align-items: center; gap: 12px; margin-left: 12px; } .stepper output { min-width: 2ch; text-align: center; font-weight: 600; }
+/* keep the quiz answers on screen: the clip is as wide as 46% of the window height allows */
+.player .stage { width: min(100%, calc(46vh * 4 / 3)); margin: 0 auto; }
+.player .controls { width: min(100%, calc(46vh * 4 / 3)); margin-left: auto; margin-right: auto; }

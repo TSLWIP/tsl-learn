@@ -126,6 +126,41 @@ export function Settings({ ctx, prefs, onPrefs, flags, onClearFlags }: Props) {
         )}
       </div>
 
+      <div class="card" data-testid="learning-settings">
+        <h2>Learning 學習設定</h2>
+        <label class="field">
+          New signs per day
+          <div class="stepper">
+            <button class="btn" aria-label="Fewer new signs per day" data-testid="newperday-down" onClick={() => onPrefs({ ...prefs, newPerDay: Math.max(1, prefs.newPerDay - 1) })}>
+              −
+            </button>
+            <output data-testid="newperday" aria-live="polite">
+              {prefs.newPerDay}
+            </output>
+            <button class="btn" aria-label="More new signs per day" data-testid="newperday-up" onClick={() => onPrefs({ ...prefs, newPerDay: Math.min(30, prefs.newPerDay + 1) })}>
+              +
+            </button>
+          </div>
+        </label>
+        <div role="radiogroup" aria-label="Quiz text language">
+          {([['mixed', 'English and 中文'], ['en', 'English'], ['zh', '中文']] as const).map(([v, label]) => (
+            <button key={v} class="btn" role="radio" aria-checked={prefs.quizLang === v} data-testid={`quizlang-${v}`} onClick={() => onPrefs({ ...prefs, quizLang: v })}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <p>
+          <label>
+            <input type="checkbox" checked={prefs.haptics} data-testid="haptics" onChange={(e) => onPrefs({ ...prefs, haptics: (e.target as HTMLInputElement).checked })} /> Vibrate on answers (where supported)
+          </label>
+        </p>
+        <p>
+          <label>
+            <input type="checkbox" checked={prefs.sound} data-testid="sound" onChange={(e) => onPrefs({ ...prefs, sound: (e.target as HTMLInputElement).checked })} /> Play a short sound on answers
+          </label>
+        </p>
+      </div>
+
       {flags.length > 0 && (
         <div class="card" data-testid="flag-list">
           <h2>Words you flagged as missing</h2>
