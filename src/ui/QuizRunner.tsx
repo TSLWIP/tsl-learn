@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { AppContext } from '../boot/boot.ts';
 import { prefetchClips } from '../clips/load.ts';
 import type { LexEntry } from '../lexicon/types.ts';
@@ -226,7 +226,7 @@ type SetPrefs = (p: Prefs) => void;
 function SignToMeaning({ ctx, q, prefs, setPrefs, fb, onPick }: {
   ctx: AppContext; q: Extract<Question, { mode: 'sign-to-meaning' }>; prefs: Prefs; setPrefs: SetPrefs; fb: Feedback | null; onPick: (o: LexEntry) => void;
 }) {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const n = Number(e.key);
       if (!fb && n >= 1 && n <= q.options.length) onPick(q.options[n - 1]);
